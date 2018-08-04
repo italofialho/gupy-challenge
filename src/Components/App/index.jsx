@@ -26,7 +26,7 @@ import ListIcon from '@material-ui/icons/List';
 
 //! COMPONENTS
 import ManualRegistration from '../ManualRegistration';
-import ViewRecorded from '../ViewRecorded';
+import ViewCandidates from '../ViewCandidates';
 
 class App extends Component {
 
@@ -49,7 +49,7 @@ class App extends Component {
       case 0:
         return <ManualRegistration />;
       case 1:
-        return <ViewRecorded />;
+        return <ViewCandidates />;
       default:
         return null;
     }

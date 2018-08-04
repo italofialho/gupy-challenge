@@ -60,7 +60,8 @@ class ManualRegistration extends Component {
                 "tags": [],
                 "professionalExperiences": [],
                 "formations": []
-            }
+            },
+            savingNewCandidate: false,
         }
     };
 
@@ -400,7 +401,6 @@ class ManualRegistration extends Component {
                         label="Tags"
                         name="tags"
                         id="tags"
-                        helperText="Adicione uma tag pressionando a tecla 'Enter'"
                         value={this.state.newCandidate.tags}
                         onAdd={(tag) => this.handleAddTag(tag)}
                         onDelete={(tag, tagIndex) => this.handleDeleteTag(tag, tagIndex)}
@@ -426,13 +426,19 @@ class ManualRegistration extends Component {
 
     renderFormScreen = () => {
         const { classes } = this.props;
+        const { savingNewCandidate } = this.state;
         return (
             <form onSubmit={(e) => this.handleFormSubmit(e)}>
                 <div className={classes.container}>
                     {this.renderMainForm()}
                 </div>
                 <div className={classes.container} style={{ paddingTop: 20 }}>
-                    <Button variant="contained" color="primary" className={classes.button} onClick={() => this.handleAddProfessionalExperience()}>
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        className={classes.button}
+                        onClick={() => this.handleAddProfessionalExperience()}
+                        disabled={savingNewCandidate}>
                         <AddIcon className={classes.leftIcon} />
                         Adicionar experiência
                     </Button>
@@ -441,7 +447,12 @@ class ManualRegistration extends Component {
                     {this.renderProfessionalExperiences()}
                 </div>
                 <div className={classes.container} style={{ paddingTop: 20 }}>
-                    <Button variant="contained" color="primary" className={classes.button} onClick={() => this.handleAddFormation()}>
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        className={classes.button}
+                        onClick={() => this.handleAddFormation()}
+                        disabled={savingNewCandidate}>
                         <AddIcon className={classes.leftIcon} />
                         Adicionar formação
                     </Button>

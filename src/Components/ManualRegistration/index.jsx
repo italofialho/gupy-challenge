@@ -67,6 +67,8 @@ class ManualRegistration extends Component {
             },
             savingNewCandidate: false,
         }
+
+        this.showSnackbar = props.showSnackbar.bind(this);
     };
 
     saveCandidate = () => {
@@ -113,12 +115,13 @@ class ManualRegistration extends Component {
         const { formations } = this.state.newCandidate;
         const newArr = formations.concat([defaultObjModel]);
         this.handleNewCandidateDataChange("formations", newArr);
+        this.showSnackbar("Nova formação adicionada!");
     };
 
     handleRemoveFormation = (idx) => {
         const { formations } = this.state.newCandidate;
-        const newArr = _.filter(formations, (pIdx) => {
-            return idx !== pIdx;
+        const newArr = _.filter(formations, (formation, fIdx) => {
+            return idx !== fIdx;
         });
         this.handleNewCandidateDataChange("formations", newArr);
     };
@@ -144,7 +147,7 @@ class ManualRegistration extends Component {
                     <div key={idx}>
                         <Paper className={classes.paper}>
                             <Grid container spacing={8}>
-                                <Grid item xs={6}>
+                                <Grid item md={6}>
                                     <TextField
                                         className={classes.formControl}
                                         value={formation.institution}
@@ -156,7 +159,7 @@ class ManualRegistration extends Component {
                                         fullWidth
                                     />
                                 </Grid>
-                                <Grid item xs={4}>
+                                <Grid item md={4}>
                                     <TextField
                                         className={classes.formControl}
                                         value={formation.course}
@@ -168,7 +171,7 @@ class ManualRegistration extends Component {
                                         fullWidth
                                     />
                                 </Grid>
-                                <Grid item xs={2}>
+                                <Grid item md={2}>
                                     <TextField
                                         className={classes.formControl}
                                         value={formation.isConcluded}
@@ -184,7 +187,7 @@ class ManualRegistration extends Component {
                                         <MenuItem value={false}>Não</MenuItem>
                                     </TextField>
                                 </Grid>
-                                <Grid item xs={6}>
+                                <Grid item md={6}>
                                     <TextField
                                         className={classes.formControl}
                                         id="startDate"
@@ -200,7 +203,7 @@ class ManualRegistration extends Component {
                                         fullWidth
                                     />
                                 </Grid>
-                                <Grid item xs={6}>
+                                <Grid item md={6}>
                                     <TextField
                                         className={classes.formControl}
                                         id="endDate"
@@ -216,7 +219,7 @@ class ManualRegistration extends Component {
                                         fullWidth
                                     />
                                 </Grid>
-                                <Grid item xs={12}>
+                                <Grid item md={12}>
                                     <Button variant="contained" color="secondary" className={classes.button} onClick={() => this.handleRemoveFormation(idx)}>
                                         <DeleteIcon className={classes.leftIcon} />
                                         Remover
@@ -241,12 +244,13 @@ class ManualRegistration extends Component {
         const { professionalExperiences } = this.state.newCandidate;
         const newArr = professionalExperiences.concat([defaultObjModel]);
         this.handleNewCandidateDataChange("professionalExperiences", newArr);
+        this.showSnackbar("Nova experiência profissional adicionada!");
     };
 
     handleRemoveProfessionalExperience = (idx) => {
         const { professionalExperiences } = this.state.newCandidate;
-        const newArr = _.filter(professionalExperiences, (pIdx) => {
-            return idx !== pIdx;
+        const newArr = _.filter(professionalExperiences, (pe, peIdx) => {
+            return idx !== peIdx;
         });
         this.handleNewCandidateDataChange("professionalExperiences", newArr);
     };
@@ -278,7 +282,7 @@ class ManualRegistration extends Component {
                     <div key={idx}>
                         <Paper className={classes.paper}>
                             <Grid container spacing={8}>
-                                <Grid item xs={6}>
+                                <Grid item md={6}>
                                     <TextField
                                         className={classes.formControl}
                                         value={professionalExperience.companyName}
@@ -290,7 +294,7 @@ class ManualRegistration extends Component {
                                         fullWidth
                                     />
                                 </Grid>
-                                <Grid item xs={6}>
+                                <Grid item md={6}>
                                     <TextField
                                         className={classes.formControl}
                                         value={professionalExperience.role}
@@ -302,7 +306,7 @@ class ManualRegistration extends Component {
                                         fullWidth
                                     />
                                 </Grid>
-                                <Grid item xs={6}>
+                                <Grid item md={6}>
                                     <TextField
                                         className={classes.formControl}
                                         id="startDate"
@@ -318,7 +322,7 @@ class ManualRegistration extends Component {
                                         fullWidth
                                     />
                                 </Grid>
-                                <Grid item xs={6}>
+                                <Grid item md={6}>
                                     <TextField
                                         className={classes.formControl}
                                         id="endDate"
@@ -334,7 +338,7 @@ class ManualRegistration extends Component {
                                         fullWidth
                                     />
                                 </Grid>
-                                <Grid item xs={12}>
+                                <Grid item md={12}>
                                     <Button variant="contained" color="secondary" className={classes.button} onClick={() => this.handleRemoveProfessionalExperience(idx)}>
                                         <DeleteIcon className={classes.leftIcon} />
                                         Remover
@@ -354,7 +358,7 @@ class ManualRegistration extends Component {
             <div>
                 <Paper className={classes.paper}>
                     <Grid container spacing={8}>
-                        <Grid item xs={6}>
+                        <Grid item md={6}>
                             <TextField
                                 className={classes.formControl}
                                 value={this.state.newCandidate.name}
@@ -366,7 +370,7 @@ class ManualRegistration extends Component {
                                 fullWidth
                             />
                         </Grid>
-                        <Grid item xs={3}>
+                        <Grid item md={3}>
                             <TextField
                                 className={classes.formControl}
                                 value={this.state.newCandidate.birthDate}
@@ -378,7 +382,7 @@ class ManualRegistration extends Component {
                                 fullWidth
                             />
                         </Grid>
-                        <Grid item xs={3}>
+                        <Grid item md={3}>
                             <TextField
                                 className={classes.formControl}
                                 value={this.state.newCandidate.gender}
@@ -386,11 +390,15 @@ class ManualRegistration extends Component {
                                 name="gender"
                                 id="gender"
                                 onChange={(e) => this.handleUserInputChange(e)}
+                                select
                                 required
                                 fullWidth
-                            />
+                            >
+                                <MenuItem value={"male"}>Homem</MenuItem>
+                                <MenuItem value={"female"}>Mulher</MenuItem>
+                            </TextField>
                         </Grid>
-                        <Grid item xs={6}>
+                        <Grid item md={6}>
                             <TextField
                                 className={classes.formControl}
                                 value={this.state.newCandidate.email}
@@ -402,7 +410,7 @@ class ManualRegistration extends Component {
                                 fullWidth
                             />
                         </Grid>
-                        <Grid item xs={6}>
+                        <Grid item md={6}>
                             <TextField
                                 className={classes.formControl}
                                 value={this.state.newCandidate.phone}
@@ -414,7 +422,7 @@ class ManualRegistration extends Component {
                                 fullWidth
                             />
                         </Grid>
-                        <Grid item xs={12}>
+                        <Grid item md={12}>
                             <TextField
                                 className={classes.formControl}
                                 value={this.state.newCandidate.address}
@@ -426,7 +434,7 @@ class ManualRegistration extends Component {
                                 fullWidth
                             />
                         </Grid>
-                        <Grid item xs={6}>
+                        <Grid item md={6}>
                             <TextField
                                 className={classes.formControl}
                                 value={this.state.newCandidate.latitude}
@@ -438,7 +446,7 @@ class ManualRegistration extends Component {
                                 fullWidth
                             />
                         </Grid>
-                        <Grid item xs={6}>
+                        <Grid item md={6}>
                             <TextField
                                 className={classes.formControl}
                                 value={this.state.newCandidate.longitude}
@@ -450,7 +458,7 @@ class ManualRegistration extends Component {
                                 fullWidth
                             />
                         </Grid>
-                        <Grid item xs={12}>
+                        <Grid item md={12}>
                             <ChipInput
                                 className={classes.formControl}
                                 label="Tags"
@@ -486,10 +494,10 @@ class ManualRegistration extends Component {
         return (
             <form onSubmit={(e) => this.handleFormSubmit(e)}>
                 <Grid container spacing={8}>
-                    <Grid item xs={12}>
+                    <Grid item md={12}>
                         {this.renderMainForm()}
                     </Grid>
-                    <Grid item xs={12}>
+                    <Grid item md={12}>
                         <Button
                             variant="contained"
                             color="primary"
@@ -500,10 +508,10 @@ class ManualRegistration extends Component {
                             Adicionar experiência
                     </Button>
                     </Grid>
-                    <Grid item xs={12}>
+                    <Grid item md={12}>
                         {this.renderProfessionalExperiences()}
                     </Grid>
-                    <Grid item xs={12}>
+                    <Grid item md={12}>
                         <Button
                             variant="contained"
                             color="primary"
@@ -514,7 +522,7 @@ class ManualRegistration extends Component {
                             Adicionar formação
                     </Button>
                     </Grid>
-                    <Grid item xs={12}>
+                    <Grid item md={12}>
                         {this.renderFormation()}
                     </Grid>
                 </Grid>
@@ -528,13 +536,13 @@ class ManualRegistration extends Component {
         return (
             <div className={classes.root}>
                 <Grid container spacing={8}>
-                    <Grid item xs={12}>
+                    <Grid item md={12}>
                         {this.renderSaveBtn()}
                     </Grid>
-                    <Grid item xs={12}>
+                    <Grid item md={12}>
                         {this.renderFormScreen()}
                     </Grid>
-                    <Grid item xs={12}>
+                    <Grid item md={12}>
                         {this.renderSaveBtn()}
                     </Grid>
                 </Grid>

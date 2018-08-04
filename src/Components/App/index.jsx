@@ -14,6 +14,7 @@ import List from '@material-ui/core/List';
 import Divider from '@material-ui/core/Divider';
 import Drawer from '@material-ui/core/Drawer';
 import ListItem from '@material-ui/core/ListItem';
+import Avatar from '@material-ui/core/Avatar';
 
 //! MATERIAL ICONS
 import MenuIcon from '@material-ui/icons/Menu';
@@ -23,6 +24,9 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import AddIcon from '@material-ui/icons/Add';
 import ListIcon from '@material-ui/icons/List';
+import AccountCircle from '@material-ui/icons/AccountCircle';
+import MenuItem from '@material-ui/core/MenuItem';
+import Menu from '@material-ui/core/Menu';
 
 //! COMPONENTS
 import ManualRegistration from '../ManualRegistration';
@@ -47,9 +51,9 @@ class App extends Component {
     const { pageIndex } = this.state;
     switch (pageIndex) {
       case 0:
-        return <ManualRegistration />;
+        return <ManualRegistration showSnackbar={(snackbarMessage) => this.showSnackbar(snackbarMessage)} />;
       case 1:
-        return <ViewCandidates />;
+        return <ViewCandidates showSnackbar={(snackbarMessage) => this.showSnackbar(snackbarMessage)} />;
       default:
         return null;
     }
@@ -150,9 +154,10 @@ class App extends Component {
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant="title" color="inherit" noWrap>
+          <Typography variant="title" color="inherit" noWrap className={classes.flex}>
             {this.getComponentTitle()}
           </Typography>
+          <img src={require("../../Assets/Images/gupy-logo.png")} style={{paddingRight: 25}}/>
         </Toolbar>
       </AppBar>
     )
@@ -178,7 +183,7 @@ class App extends Component {
           horizontal: 'right',
         }}
         open={this.state.showLoginSnackbar}
-        autoHideDuration={6000}
+        autoHideDuration={3000}
         onClose={(e, r) => this.hideSnackbar(e, r)}
         ContentProps={{
           'aria-describedby': 'message-id',
@@ -271,6 +276,9 @@ const styles = theme => ({
     backgroundColor: theme.palette.background.default,
     padding: theme.spacing.unit * 3,
   },
+  flex: {
+    flexGrow: 1,
+  }
 });
 
 

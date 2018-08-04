@@ -1,21 +1,32 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
+//! MATERIAL IMPORTS
+import classNames from 'classnames';
 import { withStyles } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import IconButton from '@material-ui/core/IconButton';
-import MenuIcon from '@material-ui/icons/Menu';
 import Snackbar from '@material-ui/core/Snackbar';
-import CloseIcon from '@material-ui/icons/Close';
-
+import List from '@material-ui/core/List';
+import Divider from '@material-ui/core/Divider';
 import Drawer from '@material-ui/core/Drawer';
 import ListItem from '@material-ui/core/ListItem';
+
+//! MATERIAL ICONS
+import MenuIcon from '@material-ui/icons/Menu';
+import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
+import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
-import StarIcon from '@material-ui/icons/Star';
+import AddIcon from '@material-ui/icons/Add';
+import ListIcon from '@material-ui/icons/List';
+
+//! COMPONENTS
+import ManualRegistration from '../ManualRegistration';
+import ViewRecorded from '../ViewRecorded';
 
 class App extends Component {
 
@@ -32,8 +43,16 @@ class App extends Component {
 
   };
 
-  prepareSimpleRoute = () => {
-
+  getComponent = () => {
+    const { pageIndex } = this.state;
+    switch (pageIndex) {
+      case 0:
+        return <ManualRegistration />;
+      case 1:
+        return <ViewRecorded />;
+      default:
+        return null;
+    }
   };
 
   getComponentTitle = () => {
@@ -52,32 +71,24 @@ class App extends Component {
   prepareSidebarMenus = () => {
     return (
       <div>
-        <ListItem button>
+        <ListItem button onClick={() => this.handleComponentChange(0)}>
           <ListItemIcon>
-            <StarIcon />
+            <AddIcon />
           </ListItemIcon>
-          <ListItemText primary="Inbox" />
+          <ListItemText primary="Novo currículo" />
         </ListItem>
-        <ListItem button>
+        <ListItem button onClick={() => this.handleComponentChange(1)}>
           <ListItemIcon>
-            <StarIcon />
+            <ListIcon />
           </ListItemIcon>
-          <ListItemText primary="Starred" />
-        </ListItem>
-        <ListItem button>
-          <ListItemIcon>
-            <StarIcon />
-          </ListItemIcon>
-          <ListItemText primary="Send mail" />
-        </ListItem>
-        <ListItem button>
-          <ListItemIcon>
-            <StarIcon />
-          </ListItemIcon>
-          <ListItemText primary="Drafts" />
+          <ListItemText primary="Visualizar currículos" />
         </ListItem>
       </div>
     )
+  };
+
+  handleComponentChange = (pageIndex) => {
+    this.setState({ pageIndex });
   };
 
   toggleDrawer = (status) => {
@@ -100,16 +111,23 @@ class App extends Component {
   };
 
   renderSidebar = () => {
+    const { classes, theme } = this.props;
     return (
-      <Drawer open={this.state.showSidebar} onClose={() => this.toggleDrawer(false)}>
-        <div
-          tabIndex={0}
-          role="button"
-          onClick={() => this.toggleDrawer(false)}
-          onKeyDown={() => this.toggleDrawer(false)}
-        >
-          {this.prepareSidebarMenus()}
+      <Drawer
+        variant="permanent"
+        classes={{
+          paper: classNames(classes.drawerPaper, !this.state.showSidebar && classes.drawerPaperClose),
+        }}
+        open={this.state.showSidebar}
+      >
+        <div className={classes.toolbar}>
+          <IconButton onClick={() => this.toggleDrawer(false)}>
+            {theme.direction === 'rtl' ? <ChevronRightIcon /> : <ChevronLeftIcon />}
+          </IconButton>
         </div>
+        <Divider />
+        <List>{this.prepareSidebarMenus()}</List>
+        <Divider />
       </Drawer>
     )
   };
@@ -118,28 +136,39 @@ class App extends Component {
     const { classes } = this.props;
     const loginMessageString = "Ainda estamos construindo essa funcionalidade na plataforma! Você pode tentar novamente mais tarde.";
     return (
-      <div className={classes.root}>
-        <AppBar position="static">
-          <Toolbar>
-            <IconButton className={classes.menuButton} color="inherit" aria-label="Menu" onClick={() => this.toggleDrawer(true)}>
-              <MenuIcon />
-            </IconButton>
-            <Typography variant="title" color="inherit" className={classes.flex}>{this.getComponentTitle()}</Typography>
-            <Button color="inherit" onClick={() => this.showSnackbar(loginMessageString)}>Login</Button>
-          </Toolbar>
-        </AppBar>
-        {this.renderSelectedComponent()}
-      </div>
+      <AppBar
+        position="absolute"
+        className={classNames(classes.appBar, this.state.showSidebar && classes.appBarShift)}
+      >
+        <Toolbar disableGutters={!this.state.showSidebar}>
+          <IconButton
+            color="inherit"
+            aria-label="Open drawer"
+            onClick={() => this.toggleDrawer(true)}
+            className={classNames(classes.menuButton, this.state.showSidebar && classes.hide)}
+          >
+            <MenuIcon />
+          </IconButton>
+          <Typography variant="title" color="inherit" noWrap>
+            {this.getComponentTitle()}
+          </Typography>
+        </Toolbar>
+      </AppBar>
     )
   };
 
   renderSelectedComponent = () => {
-
+    const { classes } = this.props;
+    return (
+      <main className={classes.content}>
+        <div className={classes.toolbar} />
+        {this.getComponent()}
+      </main>
+    );
 
   };
 
   renderSnackbar = () => {
-    const { classes } = this.props;
     const { snackbarMessage } = this.state;
     return (
       <Snackbar
@@ -165,36 +194,88 @@ class App extends Component {
 
 
   render() {
+    const { classes } = this.props;
     return (
-      <div>
+      <div className={classes.root}>
         {this.renderHeader()}
         {this.renderSidebar()}
+        {this.renderSelectedComponent()}
         {this.renderSnackbar()}
       </div>
     );
   };
 }
 
+const drawerWidth = 240;
+
 const styles = theme => ({
   root: {
     flexGrow: 1,
+    zIndex: 1,
+    overflow: 'hidden',
+    position: 'relative',
+    display: 'flex',
   },
-  flex: {
-    flexGrow: 1,
+  appBar: {
+    zIndex: theme.zIndex.drawer + 1,
+    transition: theme.transitions.create(['width', 'margin'], {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.leavingScreen,
+    }),
+  },
+  appBarShift: {
+    marginLeft: drawerWidth,
+    width: `calc(100% - ${drawerWidth}px)`,
+    transition: theme.transitions.create(['width', 'margin'], {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.enteringScreen,
+    }),
   },
   menuButton: {
-    marginLeft: -12,
-    marginRight: 20,
+    marginLeft: 12,
+    marginRight: 36,
   },
-  close: {
-    width: theme.spacing.unit * 4,
-    height: theme.spacing.unit * 4,
-  }
+  hide: {
+    display: 'none',
+  },
+  drawerPaper: {
+    position: 'relative',
+    whiteSpace: 'nowrap',
+    width: drawerWidth,
+    transition: theme.transitions.create('width', {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.enteringScreen,
+    }),
+  },
+  drawerPaperClose: {
+    overflowX: 'hidden',
+    transition: theme.transitions.create('width', {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.leavingScreen,
+    }),
+    width: theme.spacing.unit * 7,
+    [theme.breakpoints.up('sm')]: {
+      width: theme.spacing.unit * 9,
+    },
+  },
+  toolbar: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    padding: '0 8px',
+    ...theme.mixins.toolbar,
+  },
+  content: {
+    flexGrow: 1,
+    backgroundColor: theme.palette.background.default,
+    padding: theme.spacing.unit * 3,
+  },
 });
 
 
 App.propTypes = {
   classes: PropTypes.object.isRequired,
+  theme: PropTypes.object.isRequired,
 };
 
-export default withStyles(styles)(App);
+export default withStyles(styles, { withTheme: true })(App);

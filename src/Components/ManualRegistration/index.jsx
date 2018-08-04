@@ -3,13 +3,11 @@ import PropTypes from 'prop-types';
 
 //! MATERIAL IMPORTS
 import { withStyles } from '@material-ui/core/styles';
-import Input from '@material-ui/core/Input';
-import InputLabel from '@material-ui/core/InputLabel';
 import TextField from '@material-ui/core/TextField';
-import FormControl from '@material-ui/core/FormControl';
 import Button from '@material-ui/core/Button';
-import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
+import Grid from '@material-ui/core/Grid';
+import Paper from '@material-ui/core/Paper';
 
 //! MATERIAL ICONS
 import AddIcon from '@material-ui/icons/Add';
@@ -21,9 +19,11 @@ import ChipInput from 'material-ui-chip-input'
 
 //!TOOLS
 import _ from 'underscore';
-import moment from 'moment';
 
 const styles = theme => ({
+    root: {
+        flexGrow: 1,
+    },
     container: {
         display: 'flex',
         flexWrap: 'wrap',
@@ -36,6 +36,10 @@ const styles = theme => ({
     },
     button: {
         margin: theme.spacing.unit,
+    },
+    paper: {
+        padding: theme.spacing.unit * 4,
+        color: theme.palette.text.secondary,
     }
 });
 
@@ -90,9 +94,9 @@ class ManualRegistration extends Component {
         this.handleNewCandidateDataChange("tags", tags);
     };
 
-    handleDeleteTag = (tag, tagIndex) => {
+    handleDeleteTag = (tagIndex) => {
         const { tags } = this.state.newCandidate;
-        const newTagsArr = _.filter(tags, (item, itemIndex) => {
+        const newTagsArr = _.filter(tags, (itemIndex) => {
             return itemIndex !== tagIndex;
         });
         this.handleNewCandidateDataChange("tags", newTagsArr);
@@ -113,7 +117,7 @@ class ManualRegistration extends Component {
 
     handleRemoveFormation = (idx) => {
         const { formations } = this.state.newCandidate;
-        const newArr = _.filter(formations, (p, pIdx) => {
+        const newArr = _.filter(formations, (pIdx) => {
             return idx !== pIdx;
         });
         this.handleNewCandidateDataChange("formations", newArr);
@@ -138,70 +142,88 @@ class ManualRegistration extends Component {
             _.map(formations, (formation, idx) => {
                 return (
                     <div key={idx}>
-                        <FormControl className={classes.formControl}>
-                            <InputLabel htmlFor="institution">Instituição</InputLabel>
-                            <Input
-                                value={formation.institution}
-                                name="institution"
-                                id="institution"
-                                onChange={(e) => this.handleFormationDataChanges(e, idx)}
-                                required
-                            />
-                        </FormControl>
-                        <FormControl className={classes.formControl}>
-                            <InputLabel htmlFor="course">Curso</InputLabel>
-                            <Input
-                                value={formation.course}
-                                name="course"
-                                id="course"
-                                onChange={(e) => this.handleFormationDataChanges(e, idx)}
-                                required
-                            />
-                        </FormControl>
-                        <FormControl className={classes.formControl}>
-                            <InputLabel htmlFor="age-simple">Concluido</InputLabel>
-                            <Select
-                                value={formation.isConcluded}
-                                onChange={(e) => this.handleFormationDataChanges(e, idx)}
-                                name="isConcluded"
-                                id="isConcluded"
-                                required>
-                                <MenuItem value={true}>Sim</MenuItem>
-                                <MenuItem value={false}>Não</MenuItem>
-                            </Select>
-                        </FormControl>
-                        <FormControl className={classes.formControl}>
-                            <TextField
-                                id="startDate"
-                                name="startDate"
-                                label="Data de inicio"
-                                type="date"
-                                InputLabelProps={{
-                                    shrink: true,
-                                }}
-                                value={formation.startDate}
-                                onChange={(e) => this.handleFormationDataChanges(e, idx)}
-                                required
-                            />
-                        </FormControl>
-                        <FormControl className={classes.formControl}>
-                            <TextField
-                                id="endDate"
-                                name="endDate"
-                                label="Data do termino"
-                                type="date"
-                                InputLabelProps={{
-                                    shrink: true,
-                                }}
-                                value={formation.endDate}
-                                onChange={(e) => this.handleFormationDataChanges(e, idx)}
-                                required
-                            />
-                        </FormControl>
-                        <Button variant="contained" color="secondary" className={classes.button} onClick={() => this.handleRemoveFormation(idx)}>
-                            <DeleteIcon className={classes.leftIcon} />
-                            Remover
-                        </Button>
+                        <Paper className={classes.paper}>
+                            <Grid container spacing={8}>
+                                <Grid item xs={6}>
+                                    <TextField
+                                        className={classes.formControl}
+                                        value={formation.institution}
+                                        name="institution"
+                                        id="institution"
+                                        label="Instituição"
+                                        onChange={(e) => this.handleFormationDataChanges(e, idx)}
+                                        required
+                                        fullWidth
+                                    />
+                                </Grid>
+                                <Grid item xs={4}>
+                                    <TextField
+                                        className={classes.formControl}
+                                        value={formation.course}
+                                        name="course"
+                                        id="course"
+                                        label="Curso"
+                                        onChange={(e) => this.handleFormationDataChanges(e, idx)}
+                                        required
+                                        fullWidth
+                                    />
+                                </Grid>
+                                <Grid item xs={2}>
+                                    <TextField
+                                        className={classes.formControl}
+                                        value={formation.isConcluded}
+                                        select
+                                        label="Concluido"
+                                        onChange={(e) => this.handleFormationDataChanges(e, idx)}
+                                        name="isConcluded"
+                                        id="isConcluded"
+                                        required
+                                        fullWidth
+                                    >
+                                        <MenuItem value={true}>Sim</MenuItem>
+                                        <MenuItem value={false}>Não</MenuItem>
+                                    </TextField>
+                                </Grid>
+                                <Grid item xs={6}>
+                                    <TextField
+                                        className={classes.formControl}
+                                        id="startDate"
+                                        name="startDate"
+                                        label="Data de inicio"
+                                        type="date"
+                                        InputLabelProps={{
+                                            shrink: true,
+                                        }}
+                                        value={formation.startDate}
+                                        onChange={(e) => this.handleFormationDataChanges(e, idx)}
+                                        required
+                                        fullWidth
+                                    />
+                                </Grid>
+                                <Grid item xs={6}>
+                                    <TextField
+                                        className={classes.formControl}
+                                        id="endDate"
+                                        name="endDate"
+                                        label="Data do termino"
+                                        type="date"
+                                        InputLabelProps={{
+                                            shrink: true,
+                                        }}
+                                        value={formation.endDate}
+                                        onChange={(e) => this.handleFormationDataChanges(e, idx)}
+                                        required
+                                        fullWidth
+                                    />
+                                </Grid>
+                                <Grid item xs={12}>
+                                    <Button variant="contained" color="secondary" className={classes.button} onClick={() => this.handleRemoveFormation(idx)}>
+                                        <DeleteIcon className={classes.leftIcon} />
+                                        Remover
+                                </Button>
+                                </Grid>
+                            </Grid>
+                        </Paper>
                     </div>
                 )
             })
@@ -223,7 +245,7 @@ class ManualRegistration extends Component {
 
     handleRemoveProfessionalExperience = (idx) => {
         const { professionalExperiences } = this.state.newCandidate;
-        const newArr = _.filter(professionalExperiences, (p, pIdx) => {
+        const newArr = _.filter(professionalExperiences, (pIdx) => {
             return idx !== pIdx;
         });
         this.handleNewCandidateDataChange("professionalExperiences", newArr);
@@ -254,58 +276,72 @@ class ManualRegistration extends Component {
             _.map(professionalExperiences, (professionalExperience, idx) => {
                 return (
                     <div key={idx}>
-                        <FormControl className={classes.formControl}>
-                            <InputLabel htmlFor="companyName">Nome da empresa</InputLabel>
-                            <Input
-                                value={professionalExperience.companyName}
-                                name="companyName"
-                                id="companyName"
-                                onChange={(e) => this.handleProfessionalExperiencesDataChanges(e, idx)}
-                                required
-                            />
-                        </FormControl>
-                        <FormControl className={classes.formControl}>
-                            <InputLabel htmlFor="role">Cargo</InputLabel>
-                            <Input
-                                value={professionalExperience.role}
-                                name="role"
-                                id="role"
-                                onChange={(e) => this.handleProfessionalExperiencesDataChanges(e, idx)}
-                                required
-                            />
-                        </FormControl>
-                        <FormControl className={classes.formControl}>
-                            <TextField
-                                id="startDate"
-                                name="startDate"
-                                label="Data de saida"
-                                type="date"
-                                InputLabelProps={{
-                                    shrink: true,
-                                }}
-                                value={professionalExperience.startDate}
-                                onChange={(e) => this.handleProfessionalExperiencesDataChanges(e, idx)}
-                                required
-                            />
-                        </FormControl>
-                        <FormControl className={classes.formControl}>
-                            <TextField
-                                id="endDate"
-                                name="endDate"
-                                label="Data de saida"
-                                type="date"
-                                InputLabelProps={{
-                                    shrink: true,
-                                }}
-                                value={professionalExperience.endDate}
-                                onChange={(e) => this.handleProfessionalExperiencesDataChanges(e, idx)}
-                                required
-                            />
-                        </FormControl>
-                        <Button variant="contained" color="secondary" className={classes.button} onClick={() => this.handleRemoveProfessionalExperience(idx)}>
-                            <DeleteIcon className={classes.leftIcon} />
-                            Remover
-                        </Button>
+                        <Paper className={classes.paper}>
+                            <Grid container spacing={8}>
+                                <Grid item xs={6}>
+                                    <TextField
+                                        className={classes.formControl}
+                                        value={professionalExperience.companyName}
+                                        label="Nome da empresa"
+                                        name="companyName"
+                                        id="companyName"
+                                        onChange={(e) => this.handleProfessionalExperiencesDataChanges(e, idx)}
+                                        required
+                                        fullWidth
+                                    />
+                                </Grid>
+                                <Grid item xs={6}>
+                                    <TextField
+                                        className={classes.formControl}
+                                        value={professionalExperience.role}
+                                        label="Cargo"
+                                        name="role"
+                                        id="role"
+                                        onChange={(e) => this.handleProfessionalExperiencesDataChanges(e, idx)}
+                                        required
+                                        fullWidth
+                                    />
+                                </Grid>
+                                <Grid item xs={6}>
+                                    <TextField
+                                        className={classes.formControl}
+                                        id="startDate"
+                                        name="startDate"
+                                        label="Data de saida"
+                                        type="date"
+                                        InputLabelProps={{
+                                            shrink: true,
+                                        }}
+                                        value={professionalExperience.startDate}
+                                        onChange={(e) => this.handleProfessionalExperiencesDataChanges(e, idx)}
+                                        required
+                                        fullWidth
+                                    />
+                                </Grid>
+                                <Grid item xs={6}>
+                                    <TextField
+                                        className={classes.formControl}
+                                        id="endDate"
+                                        name="endDate"
+                                        label="Data de saida"
+                                        type="date"
+                                        InputLabelProps={{
+                                            shrink: true,
+                                        }}
+                                        value={professionalExperience.endDate}
+                                        onChange={(e) => this.handleProfessionalExperiencesDataChanges(e, idx)}
+                                        required
+                                        fullWidth
+                                    />
+                                </Grid>
+                                <Grid item xs={12}>
+                                    <Button variant="contained" color="secondary" className={classes.button} onClick={() => this.handleRemoveProfessionalExperience(idx)}>
+                                        <DeleteIcon className={classes.leftIcon} />
+                                        Remover
+                                    </Button>
+                                </Grid>
+                            </Grid>
+                        </Paper>
                     </div>
                 )
             })
@@ -316,97 +352,119 @@ class ManualRegistration extends Component {
         const { classes } = this.props;
         return (
             <div>
-                <FormControl className={classes.formControl}>
-                    <InputLabel htmlFor="name">Nome</InputLabel>
-                    <Input
-                        value={this.state.newCandidate.name}
-                        name="name"
-                        id="name"
-                        onChange={(e) => this.handleUserInputChange(e)}
-                        required
-                    />
-                </FormControl>
-                <FormControl className={classes.formControl}>
-                    <InputLabel htmlFor="birthDate">Data de nascimento</InputLabel>
-                    <Input
-                        value={this.state.newCandidate.birthDate}
-                        name="birthDate"
-                        id="birthDate"
-                        onChange={(e) => this.handleUserInputChange(e)}
-                        required
-                    />
-                </FormControl>
-                <FormControl className={classes.formControl}>
-                    <InputLabel htmlFor="gender">Gênero</InputLabel>
-                    <Input
-                        value={this.state.newCandidate.gender}
-                        name="gender"
-                        id="gender"
-                        onChange={(e) => this.handleUserInputChange(e)}
-                        required
-                    />
-                </FormControl>
-                <FormControl className={classes.formControl}>
-                    <InputLabel htmlFor="email">E-mail</InputLabel>
-                    <Input
-                        value={this.state.newCandidate.email}
-                        name="email"
-                        id="email"
-                        onChange={(e) => this.handleUserInputChange(e)}
-                        required
-                    />
-                </FormControl>
-                <FormControl className={classes.formControl}>
-                    <InputLabel htmlFor="phone">Telefone</InputLabel>
-                    <Input
-                        value={this.state.newCandidate.phone}
-                        name="phone"
-                        id="phone"
-                        onChange={(e) => this.handleUserInputChange(e)}
-                        required
-                    />
-                </FormControl>
-                <FormControl className={classes.formControl}>
-                    <InputLabel htmlFor="address">Endereço</InputLabel>
-                    <Input
-                        value={this.state.newCandidate.address}
-                        name="address"
-                        id="address"
-                        onChange={(e) => this.handleUserInputChange(e)}
-                        required
-                    />
-                </FormControl>
-                <FormControl className={classes.formControl}>
-                    <InputLabel htmlFor="latitude">Latitude</InputLabel>
-                    <Input
-                        value={this.state.newCandidate.latitude}
-                        name="latitude"
-                        id="latitude"
-                        onChange={(e) => this.handleUserInputChange(e)}
-                        required
-                    />
-                </FormControl>
-                <FormControl className={classes.formControl}>
-                    <InputLabel htmlFor="longitude">Longitude</InputLabel>
-                    <Input
-                        value={this.state.newCandidate.longitude}
-                        name="longitude"
-                        id="longitude"
-                        onChange={(e) => this.handleUserInputChange(e)}
-                        required
-                    />
-                </FormControl>
-                <FormControl className={classes.formControl}>
-                    <ChipInput
-                        label="Tags"
-                        name="tags"
-                        id="tags"
-                        value={this.state.newCandidate.tags}
-                        onAdd={(tag) => this.handleAddTag(tag)}
-                        onDelete={(tag, tagIndex) => this.handleDeleteTag(tag, tagIndex)}
-                        required
-                    />
-                </FormControl>
+                <Paper className={classes.paper}>
+                    <Grid container spacing={8}>
+                        <Grid item xs={6}>
+                            <TextField
+                                className={classes.formControl}
+                                value={this.state.newCandidate.name}
+                                label="Nome"
+                                name="name"
+                                id="name"
+                                onChange={(e) => this.handleUserInputChange(e)}
+                                required
+                                fullWidth
+                            />
+                        </Grid>
+                        <Grid item xs={3}>
+                            <TextField
+                                className={classes.formControl}
+                                value={this.state.newCandidate.birthDate}
+                                label="Data de nascimento"
+                                name="birthDate"
+                                id="birthDate"
+                                onChange={(e) => this.handleUserInputChange(e)}
+                                required
+                                fullWidth
+                            />
+                        </Grid>
+                        <Grid item xs={3}>
+                            <TextField
+                                className={classes.formControl}
+                                value={this.state.newCandidate.gender}
+                                label="Gênero"
+                                name="gender"
+                                id="gender"
+                                onChange={(e) => this.handleUserInputChange(e)}
+                                required
+                                fullWidth
+                            />
+                        </Grid>
+                        <Grid item xs={6}>
+                            <TextField
+                                className={classes.formControl}
+                                value={this.state.newCandidate.email}
+                                label="E-mail"
+                                name="email"
+                                id="email"
+                                onChange={(e) => this.handleUserInputChange(e)}
+                                required
+                                fullWidth
+                            />
+                        </Grid>
+                        <Grid item xs={6}>
+                            <TextField
+                                className={classes.formControl}
+                                value={this.state.newCandidate.phone}
+                                label="Telefone"
+                                name="phone"
+                                id="phone"
+                                onChange={(e) => this.handleUserInputChange(e)}
+                                required
+                                fullWidth
+                            />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <TextField
+                                className={classes.formControl}
+                                value={this.state.newCandidate.address}
+                                label="Endereço"
+                                name="address"
+                                id="address"
+                                onChange={(e) => this.handleUserInputChange(e)}
+                                required
+                                fullWidth
+                            />
+                        </Grid>
+                        <Grid item xs={6}>
+                            <TextField
+                                className={classes.formControl}
+                                value={this.state.newCandidate.latitude}
+                                label="Latitude"
+                                name="latitude"
+                                id="latitude"
+                                onChange={(e) => this.handleUserInputChange(e)}
+                                required
+                                fullWidth
+                            />
+                        </Grid>
+                        <Grid item xs={6}>
+                            <TextField
+                                className={classes.formControl}
+                                value={this.state.newCandidate.longitude}
+                                label="Longitude"
+                                name="longitude"
+                                id="longitude"
+                                onChange={(e) => this.handleUserInputChange(e)}
+                                required
+                                fullWidth
+                            />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <ChipInput
+                                className={classes.formControl}
+                                label="Tags"
+                                name="tags"
+                                id="tags"
+                                value={this.state.newCandidate.tags}
+                                onAdd={(tag) => this.handleAddTag(tag)}
+                                onDelete={(tag, tagIndex) => this.handleDeleteTag(tag, tagIndex)}
+                                required
+                                fullWidth
+                            />
+                        </Grid>
+                    </Grid>
+                </Paper>
             </div>
         );
     };
@@ -414,12 +472,10 @@ class ManualRegistration extends Component {
     renderSaveBtn = () => {
         const { classes } = this.props;
         return (
-            <div className={classes.container} style={{ paddingTop: 20 }}>
-                <Button variant="contained" className={classes.button} type="submit" onClick={() => this.saveCandidate()}>
-                    <SaveIcon className={classes.leftIcon} />
-                    Salvar Candidato
-                </Button>
-            </div>
+            <Button variant="contained" className={classes.button} type="submit" onClick={() => this.saveCandidate()}>
+                <SaveIcon className={classes.leftIcon} />
+                Salvar Candidato
+            </Button>
         );
     };
 
@@ -429,38 +485,39 @@ class ManualRegistration extends Component {
         const { savingNewCandidate } = this.state;
         return (
             <form onSubmit={(e) => this.handleFormSubmit(e)}>
-                <div className={classes.container}>
-                    {this.renderMainForm()}
-                </div>
-                <div className={classes.container} style={{ paddingTop: 20 }}>
-                    <Button
-                        variant="contained"
-                        color="primary"
-                        className={classes.button}
-                        onClick={() => this.handleAddProfessionalExperience()}
-                        disabled={savingNewCandidate}>
-                        <AddIcon className={classes.leftIcon} />
-                        Adicionar experiência
+                <Grid container spacing={8}>
+                    <Grid item xs={12}>
+                        {this.renderMainForm()}
+                    </Grid>
+                    <Grid item xs={12}>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            className={classes.button}
+                            onClick={() => this.handleAddProfessionalExperience()}
+                            disabled={savingNewCandidate}>
+                            <AddIcon className={classes.leftIcon} />
+                            Adicionar experiência
                     </Button>
-                </div>
-                <div className={classes.container} style={{ paddingTop: 20 }}>
-                    {this.renderProfessionalExperiences()}
-                </div>
-                <div className={classes.container} style={{ paddingTop: 20 }}>
-                    <Button
-                        variant="contained"
-                        color="primary"
-                        className={classes.button}
-                        onClick={() => this.handleAddFormation()}
-                        disabled={savingNewCandidate}>
-                        <AddIcon className={classes.leftIcon} />
-                        Adicionar formação
+                    </Grid>
+                    <Grid item xs={12}>
+                        {this.renderProfessionalExperiences()}
+                    </Grid>
+                    <Grid item xs={12}>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            className={classes.button}
+                            onClick={() => this.handleAddFormation()}
+                            disabled={savingNewCandidate}>
+                            <AddIcon className={classes.leftIcon} />
+                            Adicionar formação
                     </Button>
-                </div>
-                <div className={classes.container} style={{ paddingTop: 20 }}>
-                    {this.renderFormation()}
-                </div>
-
+                    </Grid>
+                    <Grid item xs={12}>
+                        {this.renderFormation()}
+                    </Grid>
+                </Grid>
             </form>
         )
     };
@@ -469,14 +526,18 @@ class ManualRegistration extends Component {
     render() {
         const { classes } = this.props;
         return (
-            <div>
-                <div className={classes.container}>
-                    {this.renderSaveBtn()}
-                </div>
-                {this.renderFormScreen()}
-                <div className={classes.container}>
-                    {this.renderSaveBtn()}
-                </div>
+            <div className={classes.root}>
+                <Grid container spacing={8}>
+                    <Grid item xs={12}>
+                        {this.renderSaveBtn()}
+                    </Grid>
+                    <Grid item xs={12}>
+                        {this.renderFormScreen()}
+                    </Grid>
+                    <Grid item xs={12}>
+                        {this.renderSaveBtn()}
+                    </Grid>
+                </Grid>
             </div>
         );
     };

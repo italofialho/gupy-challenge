@@ -31,15 +31,15 @@ import ViewCandidates from '../ViewCandidates';
 class App extends Component {
 
   constructor(props) {
-    super(props)
+    super(props);
 
+    const localPageIndex = localStorage.getItem("pageIndex");
     this.state = {
-      pageIndex: 1,
+      pageIndex: localPageIndex ? parseInt(localPageIndex) : 0,
       showLoginSnackbar: false,
       snackbarMessage: "",
       showSidebar: false
     };
-
 
   };
 
@@ -88,6 +88,7 @@ class App extends Component {
   };
 
   handleComponentChange = (pageIndex) => {
+    localStorage.setItem("pageIndex", pageIndex);
     this.setState({ pageIndex });
   };
 

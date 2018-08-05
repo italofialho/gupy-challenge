@@ -6,6 +6,7 @@
     "@material-ui/core": "^1.4.2",
     "@material-ui/icons": "^2.0.0",
     "axios": "^0.18.0",
+    "firebase": "^5.3.1",
     "material-ui-chip-input": "^1.0.0-beta.6",
     "moment": "^2.22.2",
     "react": "^16.4.2",

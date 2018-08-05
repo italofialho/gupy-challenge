@@ -14,6 +14,7 @@ import Typography from '@material-ui/core/Typography';
 import AddIcon from '@material-ui/icons/Add';
 import DeleteIcon from '@material-ui/icons/Delete';
 import SaveIcon from '@material-ui/icons/Save';
+import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 
 //! COMPONENTS
 import ChipInput from 'material-ui-chip-input'
@@ -21,6 +22,9 @@ import { theme } from "../../Themes";
 
 //!TOOLS
 import _ from 'underscore';
+import axios from 'axios';
+import moment from 'moment';
+import firebase from 'firebase';
 
 const styles = theme => ({
     root: {
@@ -55,29 +59,60 @@ class ManualRegistration extends Component {
 
         this.state = {
             newCandidate: {
-                "isActive": false,
-                "picture": "",
+                "isActive": true,
+                "picture": "http://placehold.it/32x32",
                 "birthDate": "",
                 "name": "",
                 "gender": "",
                 "email": "",
                 "phone": "",
                 "address": "",
-                "createdAt": "",
                 "latitude": "",
                 "longitude": "",
                 "tags": [],
                 "professionalExperiences": [],
                 "formations": []
             },
+            loadingCoords: false,
             savingNewCandidate: false,
         }
 
         this.showSnackbar = props.showSnackbar.bind(this);
+        this.handleComponentChange = props.handleComponentChange.bind(this);
     };
+
+    validateForm() {
+        const { newCandidate } = this.state;
+        let emptyFields = 0;
+        _.each(newCandidate, (item, key) => {
+            if (key !== "isActive" && key !== "professionalExperiences" && key !== "formations" && key !== "tags" && !item) emptyFields++;
+        });
+
+        return emptyFields === 0;
+    }
 
     saveCandidate = () => {
         const { newCandidate } = this.state;
+
+        if (!this.validateForm()) return this.showSnackbar("Preencha todos os campos necessarios antes de continuar!");
+
+        firebase
+            .database()
+            .ref("Candidates")
+            .push(newCandidate)
+            .then((newCandidateSnapshot) => {
+                const newCandidateRef = newCandidateSnapshot.ref;
+                const newCandidateId = newCandidateSnapshot.key;
+                const randomScore = parseFloat((Math.random() * 10)).toFixed(2);
+                newCandidateRef.update({
+                    _id: newCandidateId,
+                    createdAt: moment().format(),
+                    score: randomScore
+                }).then(() => {
+                    this.showSnackbar("Candidato salvo com sucesso!");
+                });
+            });
+
         console.log("saveCandidate:", newCandidate);
     };
 
@@ -128,6 +163,7 @@ class ManualRegistration extends Component {
         const newArr = _.filter(formations, (formation, fIdx) => {
             return idx !== fIdx;
         });
+        this.showSnackbar("Formação removida com sucesso.");
         this.handleNewCandidateDataChange("formations", newArr);
     };
 
@@ -171,7 +207,6 @@ class ManualRegistration extends Component {
                                         id="institution"
                                         label="Instituição"
                                         onChange={(e) => this.handleFormationDataChanges(e, idx)}
-                                        required
                                         fullWidth
                                     />
                                 </Grid>
@@ -183,7 +218,6 @@ class ManualRegistration extends Component {
                                         id="course"
                                         label="Curso"
                                         onChange={(e) => this.handleFormationDataChanges(e, idx)}
-                                        required
                                         fullWidth
                                     />
                                 </Grid>
@@ -196,7 +230,6 @@ class ManualRegistration extends Component {
                                         onChange={(e) => this.handleFormationDataChanges(e, idx)}
                                         name="isConcluded"
                                         id="isConcluded"
-                                        required
                                         fullWidth
                                     >
                                         <MenuItem value={true}>Sim</MenuItem>
@@ -215,7 +248,6 @@ class ManualRegistration extends Component {
                                         }}
                                         value={formation.startDate}
                                         onChange={(e) => this.handleFormationDataChanges(e, idx)}
-                                        required
                                         fullWidth
                                     />
                                 </Grid>
@@ -231,7 +263,6 @@ class ManualRegistration extends Component {
                                         }}
                                         value={formation.endDate}
                                         onChange={(e) => this.handleFormationDataChanges(e, idx)}
-                                        required
                                         fullWidth
                                     />
                                 </Grid>
@@ -262,6 +293,7 @@ class ManualRegistration extends Component {
         const newArr = _.filter(professionalExperiences, (pe, peIdx) => {
             return idx !== peIdx;
         });
+        this.showSnackbar("Experiência profisional removida.");
         this.handleNewCandidateDataChange("professionalExperiences", newArr);
     };
 
@@ -273,14 +305,42 @@ class ManualRegistration extends Component {
             if (idx !== pIdx) return professionalExperience;
             return { ...professionalExperience, [name]: value };
         });
-
         this.handleNewCandidateDataChange("professionalExperiences", newArr);
     }
 
     handleFormSubmit(e) {
         e.preventDefault();
+        console.log("handleFormSubmit called!");
         this.saveCandidate();
     }
+
+    parseGeocodeResult(result) {
+        return new Promise((resolve, reject) => {
+            const { location } = result.results[0].geometry;
+            this.handleNewCandidateDataChange("latitude", location.lat);
+            this.handleNewCandidateDataChange("longitude", location.lng);
+            resolve();
+        });
+    }
+
+    loadCoordByAddress() {
+        const { address } = this.state.newCandidate;
+        const apiURL = `http://maps.googleapis.com/maps/api/geocode/json?address=${address}&sensor=false`
+        this.setState({ loadingCoords: true }, () => {
+            axios
+                .get(apiURL)
+                .then((res) => {
+                    const result = res.data;
+                    this.parseGeocodeResult(result).then(() => {
+                        this.setState({ loadingCoords: false });
+                    });
+                    console.log("result:", result);
+                })
+                .catch((error) => {
+                    console.log("loadCoordByAddress errors:", error);
+                })
+        });
+    };
 
 
     renderProfessionalExperiences = () => {
@@ -311,7 +371,6 @@ class ManualRegistration extends Component {
                                         name="companyName"
                                         id="companyName"
                                         onChange={(e) => this.handleProfessionalExperiencesDataChanges(e, idx)}
-                                        required
                                         fullWidth
                                     />
                                 </Grid>
@@ -323,7 +382,6 @@ class ManualRegistration extends Component {
                                         name="role"
                                         id="role"
                                         onChange={(e) => this.handleProfessionalExperiencesDataChanges(e, idx)}
-                                        required
                                         fullWidth
                                     />
                                 </Grid>
@@ -339,7 +397,6 @@ class ManualRegistration extends Component {
                                         }}
                                         value={professionalExperience.startDate}
                                         onChange={(e) => this.handleProfessionalExperiencesDataChanges(e, idx)}
-                                        required
                                         fullWidth
                                     />
                                 </Grid>
@@ -355,7 +412,6 @@ class ManualRegistration extends Component {
                                         }}
                                         value={professionalExperience.endDate}
                                         onChange={(e) => this.handleProfessionalExperiencesDataChanges(e, idx)}
-                                        required
                                         fullWidth
                                     />
                                 </Grid>
@@ -382,6 +438,7 @@ class ManualRegistration extends Component {
                             <TextField
                                 className={classes.formControl}
                                 value={this.state.newCandidate.name}
+                                error={!this.state.newCandidate.name}
                                 label="Nome"
                                 name="name"
                                 id="name"
@@ -394,6 +451,11 @@ class ManualRegistration extends Component {
                             <TextField
                                 className={classes.formControl}
                                 value={this.state.newCandidate.birthDate}
+                                error={!this.state.newCandidate.birthDate}
+                                type="date"
+                                InputLabelProps={{
+                                    shrink: true,
+                                }}
                                 label="Data de nascimento"
                                 name="birthDate"
                                 id="birthDate"
@@ -406,6 +468,7 @@ class ManualRegistration extends Component {
                             <TextField
                                 className={classes.formControl}
                                 value={this.state.newCandidate.gender}
+                                error={!this.state.newCandidate.gender}
                                 label="Gênero"
                                 name="gender"
                                 id="gender"
@@ -422,9 +485,11 @@ class ManualRegistration extends Component {
                             <TextField
                                 className={classes.formControl}
                                 value={this.state.newCandidate.email}
+                                error={!this.state.newCandidate.email}
                                 label="E-mail"
                                 name="email"
                                 id="email"
+                                type="email"
                                 onChange={(e) => this.handleUserInputChange(e)}
                                 required
                                 fullWidth
@@ -434,6 +499,7 @@ class ManualRegistration extends Component {
                             <TextField
                                 className={classes.formControl}
                                 value={this.state.newCandidate.phone}
+                                error={!this.state.newCandidate.phone}
                                 label="Telefone"
                                 name="phone"
                                 id="phone"
@@ -446,10 +512,12 @@ class ManualRegistration extends Component {
                             <TextField
                                 className={classes.formControl}
                                 value={this.state.newCandidate.address}
+                                error={!this.state.newCandidate.address}
                                 label="Endereço"
                                 name="address"
                                 id="address"
                                 onChange={(e) => this.handleUserInputChange(e)}
+                                onBlur={() => this.loadCoordByAddress()}
                                 required
                                 fullWidth
                             />
@@ -458,6 +526,8 @@ class ManualRegistration extends Component {
                             <TextField
                                 className={classes.formControl}
                                 value={this.state.newCandidate.latitude}
+                                error={!this.state.newCandidate.latitude}
+                                disabled={this.state.loadingCoords}
                                 label="Latitude"
                                 name="latitude"
                                 id="latitude"
@@ -470,6 +540,8 @@ class ManualRegistration extends Component {
                             <TextField
                                 className={classes.formControl}
                                 value={this.state.newCandidate.longitude}
+                                error={!this.state.newCandidate.longitude}
+                                disabled={this.state.loadingCoords}
                                 label="Longitude"
                                 name="longitude"
                                 id="longitude"
@@ -487,7 +559,6 @@ class ManualRegistration extends Component {
                                 value={this.state.newCandidate.tags}
                                 onAdd={(tag) => this.handleAddTag(tag)}
                                 onDelete={(tag, tagIndex) => this.handleDeleteTag(tag, tagIndex)}
-                                required
                                 fullWidth
                             />
                         </Grid>
@@ -500,10 +571,16 @@ class ManualRegistration extends Component {
     renderSaveBtn = () => {
         const { classes } = this.props;
         return (
-            <Button variant="contained" className={classes.button} type="submit" onClick={() => this.saveCandidate()}>
-                <SaveIcon className={classes.leftIcon} />
-                Salvar Candidato
-            </Button>
+            <div>
+                <Button variant="contained" className={classes.button} onClick={() => this.handleComponentChange(2)}>
+                    <ArrowBackIcon className={classes.leftIcon} />
+                    Voltar para a lista
+                </Button>
+                <Button variant="contained" className={classes.button} onClick={() => this.saveCandidate()}>
+                    <SaveIcon className={classes.leftIcon} />
+                    Salvar Candidato
+                </Button>
+            </div>
         );
     };
 

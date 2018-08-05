@@ -14,18 +14,28 @@ import TableSortLabel from '@material-ui/core/TableSortLabel';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import Paper from '@material-ui/core/Paper';
-import Checkbox from '@material-ui/core/Checkbox';
-import IconButton from '@material-ui/core/IconButton';
 import Tooltip from '@material-ui/core/Tooltip';
+import Button from '@material-ui/core/Button';
 import { lighten } from '@material-ui/core/styles/colorManipulator';
+import Grid from '@material-ui/core/Grid';
 
-//! MATERIAL ICONS
-import DeleteIcon from '@material-ui/icons/Delete';
-import FilterListIcon from '@material-ui/icons/FilterList';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
+
+
+import AddIcon from '@material-ui/icons/Add';
+import RemoveRedEyeIcon from '@material-ui/icons/RemoveRedEye';
+
+//! COMPONENTS
+import { theme } from "../../Themes";
 
 //!TOOLS
 import _ from 'underscore';
 import moment from 'moment';
+import firebase from 'firebase';
 
 
 function getSorting(order, orderBy) {
@@ -39,6 +49,7 @@ const columnData = [
   { id: 'gender', numeric: false, disablePadding: false, label: 'Gênero' },
   { id: 'phone', numeric: false, disablePadding: false, label: 'Telefone' },
   { id: 'address', numeric: false, disablePadding: false, label: 'Endereço' },
+  { id: 'edit', numeric: false, disablePadding: false, label: 'Editar' }
 ];
 
 class ViewCandidatesHead extends React.Component {
@@ -122,13 +133,21 @@ let ViewCandidatesToolbar = props => {
   return (
     <Toolbar
       className={classNames(classes.root)}
+      style={{ paddingTop: 20 }}
     >
-      <div className={classes.title}>
-        <Typography variant="title" id="tableTitle">
-          Candidatos
-          </Typography>
-      </div>
-      <div className={classes.spacer} />
+      <Grid container spacing={8}>
+        <Grid item md={10}>
+          <Typography variant="title" id="tableTitle" style={{ flex: 1 }}>
+            Candidatos
+        </Typography>
+        </Grid>
+        <Grid item md={2}>
+          <Button variant="contained" style={theme.palette.danger} className={classes.button} onClick={() => props.handleComponentChange(1)}>
+            <AddIcon className={classes.leftIcon} />
+            Novo Candidato
+        </Button>
+        </Grid>
+      </Grid>
     </Toolbar>
   );
 };
@@ -164,24 +183,57 @@ class ViewCandidates extends React.Component {
       candidatesList: [],
       page: 0,
       rowsPerPage: 10,
+      loadingCandidates: true,
     };
+    this.showSnackbar = props.showSnackbar.bind(this);
+    this.handleComponentChange = props.handleComponentChange.bind(this);
   }
 
   componentDidMount = () => {
     this.loadCandidatesList();
   };
 
-  loadCandidatesList() {
+  populateFirebaseWithCandidatesList() {
     const candidates = require("../../Assets/JSON/candidates.json");
     let candidatesList = _.map(candidates, candidate => {
-      candidate.score = parseFloat((Math.random() * 10)).toFixed(2);;
+      candidate.score = parseFloat((Math.random() * 10)).toFixed(2);
+
+      firebase
+        .database()
+        .ref(`Candidates/${candidate._id}`)
+        .update(candidate)
+        .then(() => {
+          console.log("Candito adicionado ao firebase!", candidate._id);
+        })
+        .catch((error) => {
+          console.log("Erro ao adicionar candidato ao firebase!", candidate._id, error);
+        });
+
       return candidate;
     });
     this.setState({ candidatesList });
   };
 
+  loadCandidatesList() {
+    firebase
+      .database()
+      .ref("Candidates/")
+      .once("value")
+      .then((candidatesSnapshot) => {
+        if (candidatesSnapshot.val()) {
+          this.setState({ candidatesList: _.map(candidatesSnapshot.val()), loadingCandidates: false });
+          this.showSnackbar("Candidatos carregados com sucesso!");
+          console.log("Candidatos carregados com sucesso!", candidatesSnapshot.numChildren());
+        }
+      })
+      .catch((error) => {
+        this.setState({ loadingCandidates: false });
+        console.log("Erro ao carregar lista de candidato ao firebase!", error);
+      });
+  };
 
-  handleRequestSort = (event, property) => {
+
+  handleRequestSort = (property) => {
     const orderBy = property;
     let order = 'desc';
 
@@ -192,7 +244,7 @@ class ViewCandidates extends React.Component {
     this.setState({ order, orderBy });
   };
 
-  handleChangePage = (event, page) => {
+  handleChangePage = (page) => {
     this.setState({ page });
   };
 
@@ -209,7 +261,7 @@ class ViewCandidates extends React.Component {
 
     return (
       <Paper className={classes.root}>
-        <ViewCandidatesToolbar numSelected={selectedCandidates.length} />
+        <ViewCandidatesToolbar numSelected={selectedCandidates.length} handleComponentChange={(pageIndex) => this.handleComponentChange(pageIndex)}/>
         <div className={classes.tableWrapper}>
           <Table className={classes.table} aria-labelledby="tableTitle">
             <ViewCandidatesHead
@@ -218,7 +270,7 @@ class ViewCandidates extends React.Component {
               onRequestSort={this.handleRequestSort}
               rowCount={candidatesList.length}
             />
-            <TableBody>
+            {candidatesList.length > 0 && <TableBody>
               {candidatesList
                 .sort(getSorting(order, orderBy))
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
@@ -226,7 +278,6 @@ class ViewCandidates extends React.Component {
                   return (
                     <TableRow
                       hover
-                      onClick={event => this.handleClick(event, n._id)}
                       role="checkbox"
                       tabIndex={-1}
                       key={n._id}
@@ -234,18 +285,21 @@ class ViewCandidates extends React.Component {
                       <TableCell numeric>{n.score}</TableCell>
                       <TableCell>{n.name}</TableCell>
                       <TableCell>{moment(n.birthDate.split(" ")[0]).format("DD/MM/YYYY")}</TableCell>
-                      <TableCell>{n.gender === "male" ? "Homem" : n.gender === "female" ? "Mulher" : "--"  }</TableCell>
+                      <TableCell>{n.gender === "male" ? "Homem" : n.gender === "female" ? "Mulher" : "--"}</TableCell>
                       <TableCell>{n.phone}</TableCell>
                       <TableCell>{n.address}</TableCell>
+                      <TableCell><RemoveRedEyeIcon className={classes.leftIcon} onClick={() => console.log("edit:", n._id)} /></TableCell>
                     </TableRow>
                   );
-                })}
+                })
+              }
               {emptyRows > 0 && (
                 <TableRow style={{ height: 49 * emptyRows }}>
                   <TableCell colSpan={6} />
                 </TableRow>
               )}
             </TableBody>
+            }
           </Table>
         </div>
         <TablePagination

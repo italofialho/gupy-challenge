@@ -55,9 +55,17 @@ class App extends Component {
       case 0:
         return <Home />
       case 1:
-        return <ManualRegistration showSnackbar={(snackbarMessage) => this.showSnackbar(snackbarMessage)} />;
+        return (
+          <ManualRegistration
+            showSnackbar={(snackbarMessage) => this.showSnackbar(snackbarMessage)}
+            handleComponentChange={(pageIndex) => this.handleComponentChange(pageIndex)} />
+        );
       case 2:
-        return <ViewCandidates showSnackbar={(snackbarMessage) => this.showSnackbar(snackbarMessage)} />;
+        return (
+          <ViewCandidates
+            showSnackbar={(snackbarMessage) => this.showSnackbar(snackbarMessage)}
+            handleComponentChange={(pageIndex) => this.handleComponentChange(pageIndex)} />
+        );
       default:
         return null;
     }
@@ -81,7 +89,7 @@ class App extends Component {
   prepareSidebarMenus = () => {
     return (
       <div>
-      <ListItem button onClick={() => this.handleComponentChange(0)}>
+        <ListItem button onClick={() => this.handleComponentChange(0)}>
           <ListItemIcon>
             <HomeIcon />
           </ListItemIcon>
@@ -169,7 +177,7 @@ class App extends Component {
           <Typography variant="title" color="inherit" noWrap className={classes.flex}>
             {this.getComponentTitle()}
           </Typography>
-          <img src={require("../../Assets/Images/gupy-logo.png")} style={{paddingRight: 25}}/>
+          <img src={require("../../Assets/Images/gupy-logo.png")} style={{ paddingRight: 25 }} />
         </Toolbar>
       </AppBar>
     )

@@ -122,7 +122,7 @@ class PreviewCandidate extends React.Component {
                         <Grid item md={3}>
                             <TextField
                                 className={classes.formControl}
-                                value={moment(candidate.birthDate).format("yyyy-MM-dd")}
+                                value={moment(candidate.birthDate).format("YYYY-MM-DD")}
                                 error={!candidate.birthDate}
                                 type="date"
                                 InputLabelProps={{
@@ -300,7 +300,7 @@ class PreviewCandidate extends React.Component {
                                         InputLabelProps={{
                                             shrink: true,
                                         }}
-                                        value={formation.startDate}
+                                        value={moment(formation.startDate).format("YYYY-MM-DD")}
                                         onChange={(e) => this.handleFormationDataChanges(e, idx)}
                                         fullWidth
                                     />
@@ -315,7 +315,7 @@ class PreviewCandidate extends React.Component {
                                         InputLabelProps={{
                                             shrink: true,
                                         }}
-                                        value={formation.endDate}
+                                        value={moment(formation.endDate).format("YYYY-MM-DD")}
                                         onChange={(e) => this.handleFormationDataChanges(e, idx)}
                                         fullWidth
                                     />
@@ -380,7 +380,7 @@ class PreviewCandidate extends React.Component {
                                         InputLabelProps={{
                                             shrink: true,
                                         }}
-                                        value={professionalExperience.startDate}
+                                        value={moment(professionalExperience.startDate).format("YYYY-MM-DD")}
                                         onChange={(e) => this.handleProfessionalExperiencesDataChanges(e, idx)}
                                         fullWidth
                                     />
@@ -395,7 +395,7 @@ class PreviewCandidate extends React.Component {
                                         InputLabelProps={{
                                             shrink: true,
                                         }}
-                                        value={professionalExperience.endDate}
+                                        value={moment(professionalExperience.endDate).format("YYYY-MM-DD")}
                                         onChange={(e) => this.handleProfessionalExperiencesDataChanges(e, idx)}
                                         fullWidth
                                     />

@@ -306,13 +306,13 @@ class ManualRegistration extends Component {
             return { ...professionalExperience, [name]: value };
         });
         this.handleNewCandidateDataChange("professionalExperiences", newArr);
-    }
+    };
 
     handleFormSubmit(e) {
         e.preventDefault();
         console.log("handleFormSubmit called!");
         this.saveCandidate();
-    }
+    };
 
     parseGeocodeResult(result) {
         return new Promise((resolve, reject) => {
@@ -635,7 +635,6 @@ class ManualRegistration extends Component {
                 <Grid container spacing={8}>
                     <Grid item md={12}>
                         {this.renderSaveBtn()}
-                        {this.renderPreviewCandidate()}
                     </Grid>
                     <Grid item md={12}>
                         {this.renderFormScreen()}

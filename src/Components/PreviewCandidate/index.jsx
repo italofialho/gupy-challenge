@@ -18,6 +18,7 @@ import TextField from '@material-ui/core/TextField';
 //! MATERIAL ICONS
 import CloseIcon from '@material-ui/icons/Close';
 import DeleteIcon from '@material-ui/icons/Delete';
+import AddIcon from '@material-ui/icons/Add';
 
 //! COMPONENTS
 import ChipInput from 'material-ui-chip-input';
@@ -49,21 +50,53 @@ function Transition(props) {
 
 class PreviewCandidate extends React.Component {
     constructor(props) {
-        super(props)
+        super(props);
+
+        this.defaultCandidate = {
+            isActive: true,
+            picture: "http://placehold.it/32x32",
+            birthDate: "",
+            name: "",
+            gender: "",
+            email: "",
+            phone: "",
+            address: "",
+            latitude: "",
+            longitude: "",
+            tags: [],
+            professionalExperiences: [],
+            formations: []
+        };
 
         this.state = {
             open: props.open == "true" ? true : false,
-            candidate: props.candidate
-        }
+            candidateRecived: false,
+            candidate: {
+                ...this.defaultCandidate,
+                ...props.candidate,
+            }
+        };
 
         this.togglePreview = props.togglePreview.bind(this);
         this.refreshCandidatesList = props.refreshCandidatesList.bind(this);
+        this.showSnackbar = props.showSnackbar.bind(this);
     };
 
     componentWillReceiveProps = (nextProps) => {
+
+
         console.log("componentWillReceiveProps PreviewCandidate nextProps:", nextProps);
         if (nextProps.candidate) {
-            this.setState({ candidate: nextProps.candidate });
+
+            if (this.state.candidate && nextProps.candidate._id !== this.state.candidate._id) {
+                this.setState({
+                    candidateRecived: true,
+                    candidate: {
+                        ...this.defaultCandidate,
+                        ...nextProps.candidate,
+                    }
+                });
+            }
         }
 
         this.setState({ open: !!nextProps.open });
@@ -78,19 +111,116 @@ class PreviewCandidate extends React.Component {
         this.togglePreview(false);
     };
 
+    handleUserInputChange = (e) => {
+        const { name, value } = e.target;
+        this.handleCandidateDataChange(name, value);
+    };
+
+    handleCandidateDataChange = (name, value) => {
+        this.setState(prevState => ({
+            candidate: {
+                ...prevState.candidate,
+                [name]: value
+            }
+        }));
+    };
+
+    handleAddTag = (tag) => {
+        let tags = this.state.candidate.tags;
+        tags.push(tag);
+        this.handleCandidateDataChange("tags", tags);
+    };
+
+    handleDeleteTag = (tagIndex) => {
+        const { tags } = this.state.candidate;
+        const newTagsArr = _.filter(tags, (itemIndex) => {
+            return itemIndex !== tagIndex;
+        });
+        this.handleCandidateDataChange("tags", newTagsArr);
+    };
+
+    handleAddProfessionalExperience = () => {
+        const defaultObjModel = {
+            companyName: "",
+            role: "",
+            startDate: "",
+            endDate: ""
+        };
+
+        const { professionalExperiences } = this.state.candidate;
+        const newArr = professionalExperiences.concat([defaultObjModel]);
+        this.handleCandidateDataChange("professionalExperiences", newArr);
+        this.showSnackbar("Nova experiência profissional adicionada!");
+    };
+
+    handleRemoveProfessionalExperience = (idx) => {
+        const { professionalExperiences } = this.state.candidate;
+        const newArr = _.filter(professionalExperiences, (pe, peIdx) => {
+            return idx !== peIdx;
+        });
+        this.showSnackbar("Experiência profisional removida.");
+        this.handleCandidateDataChange("professionalExperiences", newArr);
+    };
+
+    handleProfessionalExperiencesDataChanges = (e, idx) => {
+        const { professionalExperiences } = this.state.candidate;
+        const { name, value } = e.target;
+
+        const newArr = _.map(professionalExperiences, (professionalExperience, pIdx) => {
+            if (idx !== pIdx) return professionalExperience;
+            return { ...professionalExperience, [name]: value };
+        });
+        this.handleCandidateDataChange("professionalExperiences", newArr);
+    };
+
+    handleAddFormation = () => {
+        const defaultObjModel = {
+            institution: "",
+            course: "",
+            isConcluded: true,
+            startDate: "",
+            endDate: ""
+        };
+        const { formations } = this.state.candidate;
+        const newArr = formations.concat([defaultObjModel]);
+        this.handleCandidateDataChange("formations", newArr);
+        this.showSnackbar("Nova formação adicionada!");
+    };
+
+    handleRemoveFormation = (idx) => {
+        const { formations } = this.state.candidate;
+        const newArr = _.filter(formations, (formation, fIdx) => {
+            return idx !== fIdx;
+        });
+        this.showSnackbar("Formação removida com sucesso.");
+        this.handleCandidateDataChange("formations", newArr);
+    };
+
+    handleFormationDataChanges = (e, idx) => {
+        const { formations } = this.state.candidate;
+        const { name, value } = e.target;
+
+        const newArr = _.map(formations, (formation, pIdx) => {
+            if (idx !== pIdx) return formation;
+            return { ...formation, [name]: value };
+        });
+
+        this.handleCandidateDataChange("formations", newArr);
+    };
+
     updateCandidate = () => {
         const { candidate } = this.state;
 
-        if(candidate._id){
+        if (candidate._id) {
             firebase
-            .database()
-            .ref(`Candidates/${candidate._id}`)
-            .update(candidate)
-            .then(() => {
-                this.refreshCandidatesList();
-                this.showSnackbar("Candidato atualizado com sucesso!");
-                this.handleClose();
-            });
+                .database()
+                .ref(`Candidates/${candidate._id}`)
+                .update(candidate)
+                .then(() => {
+                    this.refreshCandidatesList();
+                    this.showSnackbar("Candidato atualizado com sucesso!");
+                    this.handleClose();
+                });
         }
 
     };
@@ -99,8 +229,8 @@ class PreviewCandidate extends React.Component {
         const { classes } = this.props;
         const { candidate } = this.state;
         return (
-            <div style={{padding: 20}}>
-                <Paper className={classes.paper} style={{padding: 20}}>
+            <div style={{ padding: 20 }}>
+                <Paper className={classes.paper} style={{ padding: 20 }}>
                     <Grid container spacing={8}>
                         <Grid item md={12}>
                             <Typography variant="title">
@@ -115,6 +245,7 @@ class PreviewCandidate extends React.Component {
                                 label="Nome"
                                 name="name"
                                 id="name"
+                                onChange={(e) => this.handleUserInputChange(e)}
                                 required
                                 fullWidth
                             />
@@ -122,7 +253,7 @@ class PreviewCandidate extends React.Component {
                         <Grid item md={3}>
                             <TextField
                                 className={classes.formControl}
-                                value={moment(candidate.birthDate).format("YYYY-MM-DD")}
+                                value={moment(candidate.birthDate.split(" ")[0]).format("YYYY-MM-DD")}
                                 error={!candidate.birthDate}
                                 type="date"
                                 InputLabelProps={{
@@ -131,6 +262,7 @@ class PreviewCandidate extends React.Component {
                                 label="Data de nascimento"
                                 name="birthDate"
                                 id="birthDate"
+                                onChange={(e) => this.handleUserInputChange(e)}
                                 required
                                 fullWidth
                             />
@@ -143,7 +275,7 @@ class PreviewCandidate extends React.Component {
                                 label="Gênero"
                                 name="gender"
                                 id="gender"
-
+                                onChange={(e) => this.handleUserInputChange(e)}
                                 select
                                 required
                                 fullWidth
@@ -161,6 +293,7 @@ class PreviewCandidate extends React.Component {
                                 name="email"
                                 id="email"
                                 type="email"
+                                onChange={(e) => this.handleUserInputChange(e)}
                                 required
                                 fullWidth
                             />
@@ -173,6 +306,7 @@ class PreviewCandidate extends React.Component {
                                 label="Telefone"
                                 name="phone"
                                 id="phone"
+                                onChange={(e) => this.handleUserInputChange(e)}
                                 required
                                 fullWidth
                             />
@@ -185,6 +319,7 @@ class PreviewCandidate extends React.Component {
                                 label="Endereço"
                                 name="address"
                                 id="address"
+                                onChange={(e) => this.handleUserInputChange(e)}
                                 required
                                 fullWidth
                             />
@@ -198,6 +333,7 @@ class PreviewCandidate extends React.Component {
                                 label="Latitude"
                                 name="latitude"
                                 id="latitude"
+                                onChange={(e) => this.handleUserInputChange(e)}
                                 required
                                 fullWidth
                             />
@@ -211,6 +347,7 @@ class PreviewCandidate extends React.Component {
                                 label="Longitude"
                                 name="longitude"
                                 id="longitude"
+                                onChange={(e) => this.handleUserInputChange(e)}
                                 required
                                 fullWidth
                             />
@@ -239,8 +376,8 @@ class PreviewCandidate extends React.Component {
         return (
             _.map(formations, (formation, idx) => {
                 return (
-                    <div key={idx} style={{padding: 20}}>
-                        <Paper className={classes.paper} style={{padding: 20}}>
+                    <div key={idx} style={{ padding: 20 }}>
+                        <Paper className={classes.paper} style={{ padding: 20 }}>
                             <Grid container spacing={8}>
                                 <Grid item md={10}>
                                     <Typography variant="title">
@@ -300,7 +437,7 @@ class PreviewCandidate extends React.Component {
                                         InputLabelProps={{
                                             shrink: true,
                                         }}
-                                        value={moment(formation.startDate).format("YYYY-MM-DD")}
+                                        value={moment(formation.startDate.split(" ")[0]).format("YYYY-MM-DD")}
                                         onChange={(e) => this.handleFormationDataChanges(e, idx)}
                                         fullWidth
                                     />
@@ -315,7 +452,7 @@ class PreviewCandidate extends React.Component {
                                         InputLabelProps={{
                                             shrink: true,
                                         }}
-                                        value={moment(formation.endDate).format("YYYY-MM-DD")}
+                                        value={moment(formation.endDate.split(" ")[0]).format("YYYY-MM-DD")}
                                         onChange={(e) => this.handleFormationDataChanges(e, idx)}
                                         fullWidth
                                     />
@@ -334,8 +471,8 @@ class PreviewCandidate extends React.Component {
         return (
             _.map(professionalExperiences, (professionalExperience, idx) => {
                 return (
-                    <div key={idx} style={{padding: 20}}>
-                        <Paper className={classes.paper} style={{padding: 20}}>
+                    <div key={idx} style={{ padding: 20 }}>
+                        <Paper className={classes.paper} style={{ padding: 20 }}>
                             <Grid container spacing={8}>
                                 <Grid item md={10}>
                                     <Typography variant="title">
@@ -375,12 +512,12 @@ class PreviewCandidate extends React.Component {
                                         className={classes.formControl}
                                         id="startDate"
                                         name="startDate"
-                                        label="Data de saida"
+                                        label="Data de entrada"
                                         type="date"
                                         InputLabelProps={{
                                             shrink: true,
                                         }}
-                                        value={moment(professionalExperience.startDate).format("YYYY-MM-DD")}
+                                        value={moment(professionalExperience.startDate.split(" ")[0]).format("YYYY-MM-DD")}
                                         onChange={(e) => this.handleProfessionalExperiencesDataChanges(e, idx)}
                                         fullWidth
                                     />
@@ -395,7 +532,7 @@ class PreviewCandidate extends React.Component {
                                         InputLabelProps={{
                                             shrink: true,
                                         }}
-                                        value={moment(professionalExperience.endDate).format("YYYY-MM-DD")}
+                                        value={moment(professionalExperience.endDate.split(" ")[0]).format("YYYY-MM-DD")}
                                         onChange={(e) => this.handleProfessionalExperiencesDataChanges(e, idx)}
                                         fullWidth
                                     />
@@ -410,7 +547,7 @@ class PreviewCandidate extends React.Component {
 
     render() {
         const { classes } = this.props;
-        const { candidate } = this.state;
+        const { candidate, savingNewCandidate } = this.state;
 
         if (!candidate) return null;
 
@@ -440,7 +577,33 @@ class PreviewCandidate extends React.Component {
                             {this.renderMainForm()}
                         </Grid>
                         <Grid item md={12}>
+                            <div style={{ paddingLeft: 20 }}>
+                                <Button
+                                    variant="contained"
+                                    color="primary"
+                                    className={classes.button}
+                                    onClick={() => this.handleAddProfessionalExperience()}
+                                    disabled={savingNewCandidate}>
+                                    <AddIcon className={classes.leftIcon} />
+                                    Adicionar experiência
+                                    </Button>
+                            </div>
+                        </Grid>
+                        <Grid item md={12}>
                             {this.renderProfessionalExperiences()}
+                        </Grid>
+                        <Grid item md={12}>
+                            <div style={{ paddingLeft: 20 }}>
+                                <Button
+                                    variant="contained"
+                                    color="primary"
+                                    className={classes.button}
+                                    onClick={() => this.handleAddFormation()}
+                                    disabled={savingNewCandidate}>
+                                    <AddIcon className={classes.leftIcon} />
+                                    Adicionar formação
+                            </Button>
+                            </div>
                         </Grid>
                         <Grid item md={12}>
                             {this.renderFormation()}

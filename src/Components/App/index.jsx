@@ -14,7 +14,6 @@ import List from '@material-ui/core/List';
 import Divider from '@material-ui/core/Divider';
 import Drawer from '@material-ui/core/Drawer';
 import ListItem from '@material-ui/core/ListItem';
-import Avatar from '@material-ui/core/Avatar';
 
 //! MATERIAL ICONS
 import MenuIcon from '@material-ui/icons/Menu';
@@ -25,9 +24,6 @@ import ListItemText from '@material-ui/core/ListItemText';
 import AddIcon from '@material-ui/icons/Add';
 import HomeIcon from '@material-ui/icons/Home';
 import ListIcon from '@material-ui/icons/List';
-import AccountCircle from '@material-ui/icons/AccountCircle';
-import MenuItem from '@material-ui/core/MenuItem';
-import Menu from '@material-ui/core/Menu';
 
 //! COMPONENTS
 import ManualRegistration from '../ManualRegistration';
@@ -127,7 +123,7 @@ class App extends Component {
     });
   };
 
-  hideSnackbar = (event, reason) => {
+  hideSnackbar = (reason) => {
     if (reason === 'clickaway') {
       return;
     }
@@ -159,7 +155,6 @@ class App extends Component {
 
   renderHeader = () => {
     const { classes } = this.props;
-    const loginMessageString = "Ainda estamos construindo essa funcionalidade na plataforma! Você pode tentar novamente mais tarde.";
     return (
       <AppBar
         position="absolute"

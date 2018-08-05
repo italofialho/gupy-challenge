@@ -14,6 +14,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
 import TextField from '@material-ui/core/TextField';
+import Snackbar from '@material-ui/core/Snackbar';
 
 //! MATERIAL ICONS
 import CloseIcon from '@material-ui/icons/Close';
@@ -74,12 +75,13 @@ class PreviewCandidate extends React.Component {
             candidate: {
                 ...this.defaultCandidate,
                 ...props.candidate,
-            }
+            },
+            snackbarMessage: "",
+            showSnackbar: false
         };
 
         this.togglePreview = props.togglePreview.bind(this);
         this.refreshCandidatesList = props.refreshCandidatesList.bind(this);
-        this.showSnackbar = props.showSnackbar.bind(this);
     };
 
     componentWillReceiveProps = (nextProps) => {
@@ -89,6 +91,9 @@ class PreviewCandidate extends React.Component {
         if (nextProps.candidate) {
 
             if (this.state.candidate && nextProps.candidate._id !== this.state.candidate._id) {
+                if(nextProps.candidate && nextProps.candidate.name){
+                    this.showSnackbar(`Editando o candidato '${nextProps.candidate.name}'`)
+                }
                 this.setState({
                     candidateRecived: true,
                     candidate: {
@@ -545,6 +550,45 @@ class PreviewCandidate extends React.Component {
         );
     };
 
+    renderSnackbar = () => {
+        const { snackbarMessage, showSnackbar } = this.state;
+        return (
+            <Snackbar
+                anchorOrigin={{
+                    vertical: 'bottom',
+                    horizontal: 'right',
+                }}
+                open={showSnackbar}
+                autoHideDuration={3000}
+                onClose={(e, r) => this.hideSnackbar(e, r)}
+                ContentProps={{
+                    'aria-describedby': 'message-id',
+                }}
+                message={<span id="message-id">{snackbarMessage}</span>}
+                action={[
+                    <Button key="undo" color="secondary" size="small" onClick={(e, r) => this.hideSnackbar(e, r)}>
+                        OK
+                </Button>
+                ]}
+            />
+        )
+    };
+
+    showSnackbar = (snackbarMessage) => {
+        this.setState({
+            showSnackbar: true,
+            snackbarMessage
+        });
+    };
+
+    hideSnackbar = (event, reason) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+
+        this.setState({ showSnackbar: false });
+    };
+
     render() {
         const { classes } = this.props;
         const { candidate, savingNewCandidate } = this.state;
@@ -572,6 +616,7 @@ class PreviewCandidate extends React.Component {
                             </Button>
                         </Toolbar>
                     </AppBar>
+                    {this.renderSnackbar()}
                     <Grid container spacing={24} className={classes.root}>
                         <Grid item md={12}>
                             {this.renderMainForm()}

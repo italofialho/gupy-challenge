@@ -17,7 +17,7 @@ import SaveIcon from '@material-ui/icons/Save';
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 
 //! COMPONENTS
-import ChipInput from 'material-ui-chip-input'
+import ChipInput from 'material-ui-chip-input';
 import { theme } from "../../Themes";
 
 //!TOOLS
@@ -59,19 +59,19 @@ class ManualRegistration extends Component {
 
         this.state = {
             newCandidate: {
-                "isActive": true,
-                "picture": "http://placehold.it/32x32",
-                "birthDate": "",
-                "name": "",
-                "gender": "",
-                "email": "",
-                "phone": "",
-                "address": "",
-                "latitude": "",
-                "longitude": "",
-                "tags": [],
-                "professionalExperiences": [],
-                "formations": []
+                isActive: true,
+                picture: "http://placehold.it/32x32",
+                birthDate: "",
+                name: "",
+                gender: "",
+                email: "",
+                phone: "",
+                address: "",
+                latitude: "",
+                longitude: "",
+                tags: [],
+                professionalExperiences: [],
+                formations: []
             },
             loadingCoords: false,
             savingNewCandidate: false,
@@ -635,6 +635,7 @@ class ManualRegistration extends Component {
                 <Grid container spacing={8}>
                     <Grid item md={12}>
                         {this.renderSaveBtn()}
+                        {this.renderPreviewCandidate()}
                     </Grid>
                     <Grid item md={12}>
                         {this.renderFormScreen()}

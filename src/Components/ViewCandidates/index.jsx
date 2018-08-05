@@ -19,18 +19,12 @@ import Button from '@material-ui/core/Button';
 import { lighten } from '@material-ui/core/styles/colorManipulator';
 import Grid from '@material-ui/core/Grid';
 
-import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogContentText from '@material-ui/core/DialogContentText';
-import DialogTitle from '@material-ui/core/DialogTitle';
-
-
 import AddIcon from '@material-ui/icons/Add';
 import RemoveRedEyeIcon from '@material-ui/icons/RemoveRedEye';
 
 //! COMPONENTS
 import { theme } from "../../Themes";
+import PreviewCandidate from '../PreviewCandidate';
 
 //!TOOLS
 import _ from 'underscore';
@@ -184,6 +178,8 @@ class ViewCandidates extends React.Component {
       page: 0,
       rowsPerPage: 10,
       loadingCandidates: true,
+      previewOpen: false,
+      selectedCandidate: null,
     };
     this.showSnackbar = props.showSnackbar.bind(this);
     this.handleComponentChange = props.handleComponentChange.bind(this);
@@ -254,6 +250,26 @@ class ViewCandidates extends React.Component {
 
   isSelected = id => this.state.selectedCandidates.indexOf(id) !== -1;
 
+  togglePreview = (previewOpen) => {
+    this.setState({ previewOpen });
+  };
+
+
+  renderPreviewCandidate = () => {
+    return (
+      <PreviewCandidate
+        open={this.state.previewOpen}
+        candidate={this.state.selectedCandidate}
+        togglePreview={(state) => this.togglePreview(state)} 
+        refreshCandidatesList={() => this.refreshCandidatesList()} 
+        showSnackbar={(snackbarMessage) => this.showSnackbar(snackbarMessage)}/>
+    )
+  };
+
+  refreshCandidatesList = () => {
+    this.loadCandidatesList();
+  };
+
   render() {
     const { classes } = this.props;
     const { candidatesList, order, orderBy, selectedCandidates, rowsPerPage, page } = this.state;
@@ -261,7 +277,8 @@ class ViewCandidates extends React.Component {
 
     return (
       <Paper className={classes.root}>
-        <ViewCandidatesToolbar numSelected={selectedCandidates.length} handleComponentChange={(pageIndex) => this.handleComponentChange(pageIndex)}/>
+        {this.renderPreviewCandidate()}
+        <ViewCandidatesToolbar numSelected={selectedCandidates.length} handleComponentChange={(pageIndex) => this.handleComponentChange(pageIndex)} />
         <div className={classes.tableWrapper}>
           <Table className={classes.table} aria-labelledby="tableTitle">
             <ViewCandidatesHead
@@ -288,7 +305,7 @@ class ViewCandidates extends React.Component {
                       <TableCell>{n.gender === "male" ? "Homem" : n.gender === "female" ? "Mulher" : "--"}</TableCell>
                       <TableCell>{n.phone}</TableCell>
                       <TableCell>{n.address}</TableCell>
-                      <TableCell><RemoveRedEyeIcon className={classes.leftIcon} onClick={() => console.log("edit:", n._id)} /></TableCell>
+                      <TableCell><RemoveRedEyeIcon className={classes.leftIcon} onClick={() => this.setState({previewOpen: true, selectedCandidate: n})} /></TableCell>
                     </TableRow>
                   );
                 })

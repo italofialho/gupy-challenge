@@ -23,6 +23,7 @@ import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import AddIcon from '@material-ui/icons/Add';
+import HomeIcon from '@material-ui/icons/Home';
 import ListIcon from '@material-ui/icons/List';
 import AccountCircle from '@material-ui/icons/AccountCircle';
 import MenuItem from '@material-ui/core/MenuItem';
@@ -31,6 +32,7 @@ import Menu from '@material-ui/core/Menu';
 //! COMPONENTS
 import ManualRegistration from '../ManualRegistration';
 import ViewCandidates from '../ViewCandidates';
+import Home from '../Home';
 
 class App extends Component {
 
@@ -51,8 +53,10 @@ class App extends Component {
     const { pageIndex } = this.state;
     switch (pageIndex) {
       case 0:
-        return <ManualRegistration showSnackbar={(snackbarMessage) => this.showSnackbar(snackbarMessage)} />;
+        return <Home />
       case 1:
+        return <ManualRegistration showSnackbar={(snackbarMessage) => this.showSnackbar(snackbarMessage)} />;
+      case 2:
         return <ViewCandidates showSnackbar={(snackbarMessage) => this.showSnackbar(snackbarMessage)} />;
       default:
         return null;
@@ -64,8 +68,10 @@ class App extends Component {
 
     switch (pageIndex) {
       case 0:
-        return "Cadastro manual de currículos";
+        return "Inicio"
       case 1:
+        return "Cadastro manual de currículos";
+      case 2:
         return "Visualização de currículos cadastrados";
       default:
         return "--";
@@ -75,13 +81,19 @@ class App extends Component {
   prepareSidebarMenus = () => {
     return (
       <div>
-        <ListItem button onClick={() => this.handleComponentChange(0)}>
+      <ListItem button onClick={() => this.handleComponentChange(0)}>
+          <ListItemIcon>
+            <HomeIcon />
+          </ListItemIcon>
+          <ListItemText primary="Home" />
+        </ListItem>
+        <ListItem button onClick={() => this.handleComponentChange(1)}>
           <ListItemIcon>
             <AddIcon />
           </ListItemIcon>
           <ListItemText primary="Novo currículo" />
         </ListItem>
-        <ListItem button onClick={() => this.handleComponentChange(1)}>
+        <ListItem button onClick={() => this.handleComponentChange(2)}>
           <ListItemIcon>
             <ListIcon />
           </ListItemIcon>

@@ -8,6 +8,7 @@ import Button from '@material-ui/core/Button';
 import MenuItem from '@material-ui/core/MenuItem';
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
+import Typography from '@material-ui/core/Typography';
 
 //! MATERIAL ICONS
 import AddIcon from '@material-ui/icons/Add';
@@ -16,6 +17,7 @@ import SaveIcon from '@material-ui/icons/Save';
 
 //! COMPONENTS
 import ChipInput from 'material-ui-chip-input'
+import { theme } from "../../Themes";
 
 //!TOOLS
 import _ from 'underscore';
@@ -40,6 +42,9 @@ const styles = theme => ({
     paper: {
         padding: theme.spacing.unit * 4,
         color: theme.palette.text.secondary,
+    },
+    flexItem: {
+        flex: 1
     }
 });
 
@@ -147,6 +152,17 @@ class ManualRegistration extends Component {
                     <div key={idx}>
                         <Paper className={classes.paper}>
                             <Grid container spacing={8}>
+                                <Grid item md={10}>
+                                    <Typography variant="title">
+                                        Nova Formação
+                                    </Typography>
+                                </Grid>
+                                <Grid item md={2}>
+                                    <Button variant="contained" style={theme.palette.danger} className={classes.button} onClick={() => this.handleRemoveFormation(idx)}>
+                                        <DeleteIcon className={classes.leftIcon} />
+                                        Remover
+                                    </Button>
+                                </Grid>
                                 <Grid item md={6}>
                                     <TextField
                                         className={classes.formControl}
@@ -219,12 +235,6 @@ class ManualRegistration extends Component {
                                         fullWidth
                                     />
                                 </Grid>
-                                <Grid item md={12}>
-                                    <Button variant="contained" color="secondary" className={classes.button} onClick={() => this.handleRemoveFormation(idx)}>
-                                        <DeleteIcon className={classes.leftIcon} />
-                                        Remover
-                                </Button>
-                                </Grid>
                             </Grid>
                         </Paper>
                     </div>
@@ -282,6 +292,17 @@ class ManualRegistration extends Component {
                     <div key={idx}>
                         <Paper className={classes.paper}>
                             <Grid container spacing={8}>
+                                <Grid item md={10}>
+                                    <Typography variant="title">
+                                        Nova Experiência Profissional
+                                    </Typography>
+                                </Grid>
+                                <Grid item md={2}>
+                                    <Button variant="contained" style={theme.palette.danger} className={classes.button} onClick={() => this.handleRemoveProfessionalExperience(idx)}>
+                                        <DeleteIcon className={classes.leftIcon} />
+                                        Remover
+                                    </Button>
+                                </Grid>
                                 <Grid item md={6}>
                                     <TextField
                                         className={classes.formControl}
@@ -338,12 +359,6 @@ class ManualRegistration extends Component {
                                         fullWidth
                                     />
                                 </Grid>
-                                <Grid item md={12}>
-                                    <Button variant="contained" color="secondary" className={classes.button} onClick={() => this.handleRemoveProfessionalExperience(idx)}>
-                                        <DeleteIcon className={classes.leftIcon} />
-                                        Remover
-                                    </Button>
-                                </Grid>
                             </Grid>
                         </Paper>
                     </div>
@@ -358,6 +373,11 @@ class ManualRegistration extends Component {
             <div>
                 <Paper className={classes.paper}>
                     <Grid container spacing={8}>
+                        <Grid item md={12}>
+                            <Typography variant="title">
+                                Informações pessoais
+                        </Typography>
+                        </Grid>
                         <Grid item md={6}>
                             <TextField
                                 className={classes.formControl}

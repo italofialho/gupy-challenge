@@ -49,7 +49,7 @@ class App extends Component {
     const { pageIndex } = this.state;
     switch (pageIndex) {
       case 0:
-        return <Home />
+        return <Home handleComponentChange={(pageIndex) => this.handleComponentChange(pageIndex)} />
       case 1:
         return (
           <ManualRegistration

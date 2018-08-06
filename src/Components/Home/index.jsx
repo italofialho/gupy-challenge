@@ -54,13 +54,13 @@ class Home extends React.Component {
         </Typography>
           <Divider />
           <Typography variant="display1" style={{ textAlign: 'center', paddingTop: 20, paddingBottom: 20 }}>
-            O que esperar da aplicação ?
+            O que esperar da aplicação?
         </Typography>
           <ListItem>
             <ListItemIcon>
               <KeyboardArrowRightIcon />
             </ListItemIcon>
-            <Typography variant="body2">
+            <Typography variant="body1">
               O desafio era criar uma SPA <i>(Single Page Application)</i> usando uma framework do meu agradado e para isso eu usei o <b>ReactJS</b>!
           </Typography>
           </ListItem>
@@ -69,7 +69,7 @@ class Home extends React.Component {
               <ListItemIcon>
                 <KeyboardArrowRightIcon />
               </ListItemIcon>
-              <Typography variant="body2">
+              <Typography variant="body1">
                 A aplicação deveria conter 2 telas apenas:
             </Typography>
             </ListItem>
@@ -77,66 +77,74 @@ class Home extends React.Component {
               <ListItemIcon>
                 <SubdirectoryArrowRightIcon />
               </ListItemIcon>
-              <Typography variant="body2">
-                A tela de cadastro de curriculos ...
+              <Typography variant="body1">
+                A tela de cadastro de currículos ...
             </Typography>
             </ListItem>
             <ListItem button onClick={() => this.handleComponentChange(2)}>
               <ListItemIcon>
                 <SubdirectoryArrowRightIcon />
               </ListItemIcon>
-              <Typography variant="body2">
-                A tela de visualização dos curriculos cadastrados ...
+              <Typography variant="body1">
+                A tela de visualização dos currículos cadastrados ...
             </Typography>
             </ListItem>
           </List>
 
           <Divider />
           <Typography variant="display1" style={{ textAlign: 'center', paddingTop: 20, paddingBottom: 20 }}>
-            O que foi feito ?
+            O que foi feito?
           </Typography>
           <ListItem>
             <ListItemIcon>
               <KeyboardArrowRightIcon />
             </ListItemIcon>
-            <Typography variant="body2">
-              A tela de cadastro de curriculos conectado ao <b>Firebase</b> para a persistencia do curriculo no banco no mesmo formato do <i>JSON</i> de candidatos que recebi!
+            <Typography variant="body1">
+              A tela de cadastro de currículos conectado ao <b>Firebase</b> para a persistência do currículo no banco no mesmo formato do <i>JSON</i> de candidatos que recebi!
           </Typography>
           </ListItem>
           <ListItem>
             <ListItemIcon>
               <KeyboardArrowRightIcon />
             </ListItemIcon>
-            <Typography variant="body2">
-              A tela de edição com todos os 100 candidados do JSON base, porem, carregados a partir do Firebase tambem, além <b>do meu curriculo</b> que cadastrei como teste na plataforma porém com todos os dados reais. <b>:)</b>
+            <Typography variant="body1">
+              A tela de visualização com todos os 100 candidatos do JSON base, porém, carregados a partir do <b>Firebase</b> também, além <b>do meu currículo</b> que cadastrei como teste na plataforma porém com todos os dados reais. <b>:)</b>
             </Typography>
           </ListItem>
           <ListItem>
             <ListItemIcon>
               <KeyboardArrowRightIcon />
             </ListItemIcon>
-            <Typography variant="body2">
-              Falando agora de tecnlogia, além do Firebase e do ReactJS, utilizei a <b>Material-UI</b> para que a aplicação pudesse tormar forma e que ficasse algo basicamente apresentavel!
+            <Typography variant="body1">
+              Outro ponto na tela de visualização é o botão de visualização/edição no canto direito da tabela. Que ao clicar abre um Dialog que possibilita a visualização e edição de uma forma rápida de todos os dados do candidato!
+            </Typography>
+          </ListItem>
+          <ListItem>
+            <ListItemIcon>
+              <KeyboardArrowRightIcon />
+            </ListItemIcon>
+            <Typography variant="body1">
+              Falando agora de tecnologia, além do <b>Firebase</b> e do <b>ReactJS</b>, utilizei a <b>Material-UI</b> para que a aplicação pudesse tomar forma e que ficasse algo basicamente apresentável!
           </Typography>
           </ListItem>
           <ListItem>
             <ListItemIcon>
               <KeyboardArrowRightIcon />
             </ListItemIcon>
-            <Typography variant="body2">
-              Outro ponto na plataforma que merece destaque é a utilizando da API do Google, a GeoLocation, para que fosse possivel converter o endereço digitado em latitude e longitude. Para fazer a requisição eu utilizei o AXIOS para tornar as coisas um pouco mais facil  !
+            <Typography variant="body1">
+              Outro ponto na plataforma que merece destaque é a utilizando da API do Google, a <b>GeoLocation</b>, para que fosse possível converter o endereço digitado em latitude e longitude. Para fazer a requisição eu utilizei o <b>axios</b> para tornar as coisas um pouco mais fácil  !
           </Typography>
           </ListItem>
           <ListItem>
             <ListItemIcon>
               <KeyboardArrowRightIcon />
             </ListItemIcon>
-            <Typography variant="body2">
-              As rotas são controladas da forma mais simples possivel, utilizando o poder de renderização do React, ou seja, atraves de um index do component pai o 'App'.
+            <Typography variant="body1">
+              As rotas são controladas da forma mais simples possível, utilizando o poder de renderização do <b>React</b>, ou seja, através de um índex do componente pai o 'App'.
           </Typography>
           </ListItem>
         </Paper>
-        <div  style={{paddingTop: 20, paddingBottom: 20}}>
+        <div style={{paddingTop: 20, paddingBottom: 20}}>
         <Paper className={classes.gupyBg}>
           <img src={require("../../Assets/Images/gupy-arrow.png")} />
         </Paper>

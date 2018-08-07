@@ -96,22 +96,32 @@ class ManualRegistration extends Component {
 
         if (!this.validateForm()) return this.showSnackbar("Preencha todos os campos necessarios antes de continuar!");
 
-        firebase
-            .database()
-            .ref("Candidates")
-            .push(newCandidate)
-            .then((newCandidateSnapshot) => {
-                const newCandidateRef = newCandidateSnapshot.ref;
-                const newCandidateId = newCandidateSnapshot.key;
-                const randomScore = parseFloat((Math.random() * 10)).toFixed(2);
-                newCandidateRef.update({
-                    _id: newCandidateId,
-                    createdAt: moment().format(),
-                    score: randomScore
-                }).then(() => {
+        this.setState({ savingNewCandidate: true }, () => {
+            const randomScore = parseFloat((Math.random() * 10)).toFixed(2);
+            newCandidate.createdAt = moment().format();
+            newCandidate.score = randomScore;
+
+            const apiEndPoint = ' https://us-central1-gupy-challenge.cloudfunctions.net/createCandidate';
+            const parameters = {
+                candidate: newCandidate
+            };
+            const requestConfig = {
+                crossDomain: true
+            }
+
+            axios
+                .post(apiEndPoint, parameters, requestConfig)
+                .then((response) => {
                     this.showSnackbar("Candidato salvo com sucesso!");
+                    this.setState({ savingNewCandidate: false });
+                    console.log("saveCandidate then:", response);
+                })
+                .catch((error) => {
+                    this.setState({ savingNewCandidate: false });
+                    console.log("saveCandidate catch:", error);
                 });
-            });
+        });
+
 
         console.log("saveCandidate:", newCandidate);
     };
@@ -316,6 +326,9 @@ class ManualRegistration extends Component {
 
     parseGeocodeResult(result) {
         return new Promise((resolve, reject) => {
+
+            if (!result) return;
+
             const { location } = result.results[0].geometry;
             this.handleNewCandidateDataChange("latitude", location.lat);
             this.handleNewCandidateDataChange("longitude", location.lng);
@@ -325,12 +338,18 @@ class ManualRegistration extends Component {
 
     loadCoordByAddress() {
         const { address } = this.state.newCandidate;
-        const apiURL = `http://maps.googleapis.com/maps/api/geocode/json?address=${address}&sensor=false`
+        const apiURL = `http://maps.googleapis.com/maps/api/geocode/json?address=${address}&sensor=false`;
+
+        if (!address) return;
+
         this.setState({ loadingCoords: true }, () => {
             axios
                 .get(apiURL)
                 .then((res) => {
                     const result = res.data;
+
+                    if (!result) return;
+
                     this.parseGeocodeResult(result).then(() => {
                         this.setState({ loadingCoords: false });
                     });
@@ -570,15 +589,16 @@ class ManualRegistration extends Component {
 
     renderSaveBtn = () => {
         const { classes } = this.props;
+        const { savingNewCandidate } = this.state;
         return (
             <div>
-                <Button variant="contained" className={classes.button} onClick={() => this.handleComponentChange(2)}>
+                <Button variant="contained" disabled={savingNewCandidate} className={classes.button} onClick={() => this.handleComponentChange(2)}>
                     <ArrowBackIcon className={classes.leftIcon} />
                     Voltar para a lista
                 </Button>
-                <Button variant="contained" className={classes.button} onClick={() => this.saveCandidate()}>
+                <Button variant="contained" disabled={savingNewCandidate} className={classes.button} onClick={() => this.saveCandidate()}>
                     <SaveIcon className={classes.leftIcon} />
-                    Salvar Candidato
+                    {savingNewCandidate ? "Salvando..." : "Salvar Candidato"}
                 </Button>
             </div>
         );

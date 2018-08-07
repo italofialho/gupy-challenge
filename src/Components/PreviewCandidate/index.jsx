@@ -1,47 +1,48 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import { withStyles } from '@material-ui/core/styles';
+import React from "react";
+import PropTypes from "prop-types";
+import { withStyles } from "@material-ui/core/styles";
 
 //! MATERIAL COMPONENTS
-import Button from '@material-ui/core/Button';
-import Dialog from '@material-ui/core/Dialog';
-import AppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
-import IconButton from '@material-ui/core/IconButton';
-import Typography from '@material-ui/core/Typography';
-import Slide from '@material-ui/core/Slide';
-import MenuItem from '@material-ui/core/MenuItem';
-import Grid from '@material-ui/core/Grid';
-import Paper from '@material-ui/core/Paper';
-import TextField from '@material-ui/core/TextField';
-import Snackbar from '@material-ui/core/Snackbar';
+import Button from "@material-ui/core/Button";
+import Dialog from "@material-ui/core/Dialog";
+import AppBar from "@material-ui/core/AppBar";
+import Toolbar from "@material-ui/core/Toolbar";
+import IconButton from "@material-ui/core/IconButton";
+import Typography from "@material-ui/core/Typography";
+import Slide from "@material-ui/core/Slide";
+import MenuItem from "@material-ui/core/MenuItem";
+import Grid from "@material-ui/core/Grid";
+import Paper from "@material-ui/core/Paper";
+import TextField from "@material-ui/core/TextField";
+import Snackbar from "@material-ui/core/Snackbar";
 
 //! MATERIAL ICONS
-import CloseIcon from '@material-ui/icons/Close';
-import DeleteIcon from '@material-ui/icons/Delete';
-import AddIcon from '@material-ui/icons/Add';
+import CloseIcon from "@material-ui/icons/Close";
+import DeleteIcon from "@material-ui/icons/Delete";
+import AddIcon from "@material-ui/icons/Add";
 
 //! COMPONENTS
-import ChipInput from 'material-ui-chip-input';
+import ChipInput from "material-ui-chip-input";
 import { theme } from "../../Themes";
 
 //! TOOLS
-import moment from 'moment';
-import _ from 'lodash';
-import firebase from 'firebase';
+import moment from "moment";
+import _ from "lodash";
+import firebase from "firebase";
+import axios from "axios";
 
 const styles = theme => ({
     appBar: {
-        position: 'relative',
+        position: "relative"
     },
     flex: {
-        flex: 1,
+        flex: 1
     },
     formControl: {
-        margin: theme.spacing.unit,
+        margin: theme.spacing.unit
     },
     root: {
-        flexGrow: 1,
+        flexGrow: 1
     }
 });
 
@@ -74,31 +75,37 @@ class PreviewCandidate extends React.Component {
             candidateRecived: false,
             candidate: {
                 ...this.defaultCandidate,
-                ...props.candidate,
+                ...props.candidate
             },
             snackbarMessage: "",
-            showSnackbar: false
+            showSnackbar: false,
+            updatingCandidate: false,
         };
 
         this.togglePreview = props.togglePreview.bind(this);
         this.refreshCandidatesList = props.refreshCandidatesList.bind(this);
-    };
+    }
 
-    componentWillReceiveProps = (nextProps) => {
-
-
-        console.log("componentWillReceiveProps PreviewCandidate nextProps:", nextProps);
+    componentWillReceiveProps = nextProps => {
+        console.log(
+            "componentWillReceiveProps PreviewCandidate nextProps:",
+            nextProps
+        );
         if (nextProps.candidate) {
-
-            if (this.state.candidate && nextProps.candidate._id !== this.state.candidate._id) {
-                if(nextProps.candidate && nextProps.candidate.name){
-                    this.showSnackbar(`Editando o candidato '${nextProps.candidate.name}'`)
+            if (
+                this.state.candidate &&
+                nextProps.candidate._id !== this.state.candidate._id
+            ) {
+                if (nextProps.candidate && nextProps.candidate.name) {
+                    this.showSnackbar(
+                        `Editando o candidato '${nextProps.candidate.name}'`
+                    );
                 }
                 this.setState({
                     candidateRecived: true,
                     candidate: {
                         ...this.defaultCandidate,
-                        ...nextProps.candidate,
+                        ...nextProps.candidate
                     }
                 });
             }
@@ -106,7 +113,6 @@ class PreviewCandidate extends React.Component {
 
         this.setState({ open: !!nextProps.open });
     };
-
 
     handleClickOpen = () => {
         this.togglePreview(true);
@@ -116,7 +122,7 @@ class PreviewCandidate extends React.Component {
         this.togglePreview(false);
     };
 
-    handleUserInputChange = (e) => {
+    handleUserInputChange = e => {
         const { name, value } = e.target;
         this.handleCandidateDataChange(name, value);
     };
@@ -130,15 +136,15 @@ class PreviewCandidate extends React.Component {
         }));
     };
 
-    handleAddTag = (tag) => {
+    handleAddTag = tag => {
         let tags = this.state.candidate.tags;
         tags.push(tag);
         this.handleCandidateDataChange("tags", tags);
     };
 
-    handleDeleteTag = (tagIndex) => {
+    handleDeleteTag = tagIndex => {
         const { tags } = this.state.candidate;
-        const newTagsArr = _.filter(tags, (itemIndex) => {
+        const newTagsArr = _.filter(tags, itemIndex => {
             return itemIndex !== tagIndex;
         });
         this.handleCandidateDataChange("tags", newTagsArr);
@@ -158,7 +164,7 @@ class PreviewCandidate extends React.Component {
         this.showSnackbar("Nova experiência profissional adicionada!");
     };
 
-    handleRemoveProfessionalExperience = (idx) => {
+    handleRemoveProfessionalExperience = idx => {
         const { professionalExperiences } = this.state.candidate;
         const newArr = _.filter(professionalExperiences, (pe, peIdx) => {
             return idx !== peIdx;
@@ -171,10 +177,13 @@ class PreviewCandidate extends React.Component {
         const { professionalExperiences } = this.state.candidate;
         const { name, value } = e.target;
 
-        const newArr = _.map(professionalExperiences, (professionalExperience, pIdx) => {
-            if (idx !== pIdx) return professionalExperience;
-            return { ...professionalExperience, [name]: value };
-        });
+        const newArr = _.map(
+            professionalExperiences,
+            (professionalExperience, pIdx) => {
+                if (idx !== pIdx) return professionalExperience;
+                return { ...professionalExperience, [name]: value };
+            }
+        );
         this.handleCandidateDataChange("professionalExperiences", newArr);
     };
 
@@ -192,7 +201,7 @@ class PreviewCandidate extends React.Component {
         this.showSnackbar("Nova formação adicionada!");
     };
 
-    handleRemoveFormation = (idx) => {
+    handleRemoveFormation = idx => {
         const { formations } = this.state.candidate;
         const newArr = _.filter(formations, (formation, fIdx) => {
             return idx !== fIdx;
@@ -214,20 +223,36 @@ class PreviewCandidate extends React.Component {
     };
 
     updateCandidate = () => {
-        const { candidate } = this.state;
+        const { candidate, updatingCandidate } = this.state;
 
-        if (candidate._id) {
-            firebase
-                .database()
-                .ref(`Candidates/${candidate._id}`)
-                .update(candidate)
-                .then(() => {
-                    this.refreshCandidatesList();
-                    this.showSnackbar("Candidato atualizado com sucesso!");
-                    this.handleClose();
-                });
+        if(updatingCandidate){
+            this.showSnackbar("Aguarde o termino da atualização anterior!");
+            return;
         }
 
+        if (candidate._id) {
+            this.setState({ updatingCandidate: true }, () => {
+                const apiEndPoint = " https://us-central1-gupy-challenge.cloudfunctions.net/updateCandidate";
+                const parameters = {
+                    candidate
+                };
+                const requestConfig = {
+                    crossDomain: true
+                };
+                axios
+                    .post(apiEndPoint, parameters, requestConfig)
+                    .then(() => {
+                        this.setState({ updatingCandidate: false });
+                        this.refreshCandidatesList();
+                        this.showSnackbar("Candidato atualizado com sucesso!");
+                        this.handleClose();
+                    })
+                    .catch(error => {
+                        this.setState({ updatingCandidate: false });
+                        console.log("updateCandidate error:", error);
+                    });
+            });
+        }
     };
 
     renderMainForm = () => {
@@ -238,9 +263,7 @@ class PreviewCandidate extends React.Component {
                 <Paper className={classes.paper} style={{ padding: 20 }}>
                     <Grid container spacing={8}>
                         <Grid item md={12}>
-                            <Typography variant="title">
-                                Informações pessoais
-                        </Typography>
+                            <Typography variant="title">Informações pessoais</Typography>
                         </Grid>
                         <Grid item md={6}>
                             <TextField
@@ -250,7 +273,7 @@ class PreviewCandidate extends React.Component {
                                 label="Nome"
                                 name="name"
                                 id="name"
-                                onChange={(e) => this.handleUserInputChange(e)}
+                                onChange={e => this.handleUserInputChange(e)}
                                 required
                                 fullWidth
                             />
@@ -258,16 +281,18 @@ class PreviewCandidate extends React.Component {
                         <Grid item md={3}>
                             <TextField
                                 className={classes.formControl}
-                                value={moment(candidate.birthDate.split(" ")[0]).format("YYYY-MM-DD")}
+                                value={moment(candidate.birthDate.split(" ")[0]).format(
+                                    "YYYY-MM-DD"
+                                )}
                                 error={!candidate.birthDate}
                                 type="date"
                                 InputLabelProps={{
-                                    shrink: true,
+                                    shrink: true
                                 }}
                                 label="Data de nascimento"
                                 name="birthDate"
                                 id="birthDate"
-                                onChange={(e) => this.handleUserInputChange(e)}
+                                onChange={e => this.handleUserInputChange(e)}
                                 required
                                 fullWidth
                             />
@@ -280,7 +305,7 @@ class PreviewCandidate extends React.Component {
                                 label="Gênero"
                                 name="gender"
                                 id="gender"
-                                onChange={(e) => this.handleUserInputChange(e)}
+                                onChange={e => this.handleUserInputChange(e)}
                                 select
                                 required
                                 fullWidth
@@ -298,7 +323,7 @@ class PreviewCandidate extends React.Component {
                                 name="email"
                                 id="email"
                                 type="email"
-                                onChange={(e) => this.handleUserInputChange(e)}
+                                onChange={e => this.handleUserInputChange(e)}
                                 required
                                 fullWidth
                             />
@@ -311,7 +336,7 @@ class PreviewCandidate extends React.Component {
                                 label="Telefone"
                                 name="phone"
                                 id="phone"
-                                onChange={(e) => this.handleUserInputChange(e)}
+                                onChange={e => this.handleUserInputChange(e)}
                                 required
                                 fullWidth
                             />
@@ -324,7 +349,7 @@ class PreviewCandidate extends React.Component {
                                 label="Endereço"
                                 name="address"
                                 id="address"
-                                onChange={(e) => this.handleUserInputChange(e)}
+                                onChange={e => this.handleUserInputChange(e)}
                                 required
                                 fullWidth
                             />
@@ -338,7 +363,7 @@ class PreviewCandidate extends React.Component {
                                 label="Latitude"
                                 name="latitude"
                                 id="latitude"
-                                onChange={(e) => this.handleUserInputChange(e)}
+                                onChange={e => this.handleUserInputChange(e)}
                                 required
                                 fullWidth
                             />
@@ -352,7 +377,7 @@ class PreviewCandidate extends React.Component {
                                 label="Longitude"
                                 name="longitude"
                                 id="longitude"
-                                onChange={(e) => this.handleUserInputChange(e)}
+                                onChange={e => this.handleUserInputChange(e)}
                                 required
                                 fullWidth
                             />
@@ -364,8 +389,10 @@ class PreviewCandidate extends React.Component {
                                 name="tags"
                                 id="tags"
                                 value={candidate.tags}
-                                onAdd={(tag) => this.handleAddTag(tag)}
-                                onDelete={(tag, tagIndex) => this.handleDeleteTag(tag, tagIndex)}
+                                onAdd={tag => this.handleAddTag(tag)}
+                                onDelete={(tag, tagIndex) =>
+                                    this.handleDeleteTag(tag, tagIndex)
+                                }
                                 fullWidth
                             />
                         </Grid>
@@ -378,176 +405,196 @@ class PreviewCandidate extends React.Component {
     renderFormation = () => {
         const { formations } = this.state.candidate;
         const { classes } = this.props;
-        return (
-            _.map(formations, (formation, idx) => {
-                return (
-                    <div key={idx} style={{ padding: 20 }}>
-                        <Paper className={classes.paper} style={{ padding: 20 }}>
-                            <Grid container spacing={8}>
-                                <Grid item md={10}>
-                                    <Typography variant="title">
-                                        Nova Formação
-                                    </Typography>
-                                </Grid>
-                                <Grid item md={2}>
-                                    <Button variant="contained" style={theme.palette.danger} className={classes.button} onClick={() => this.handleRemoveFormation(idx)}>
-                                        <DeleteIcon className={classes.leftIcon} />
-                                        Remover
-                                    </Button>
-                                </Grid>
-                                <Grid item md={6}>
-                                    <TextField
-                                        className={classes.formControl}
-                                        value={formation.institution}
-                                        name="institution"
-                                        id="institution"
-                                        label="Instituição"
-                                        onChange={(e) => this.handleFormationDataChanges(e, idx)}
-                                        fullWidth
-                                    />
-                                </Grid>
-                                <Grid item md={4}>
-                                    <TextField
-                                        className={classes.formControl}
-                                        value={formation.course}
-                                        name="course"
-                                        id="course"
-                                        label="Curso"
-                                        onChange={(e) => this.handleFormationDataChanges(e, idx)}
-                                        fullWidth
-                                    />
-                                </Grid>
-                                <Grid item md={2}>
-                                    <TextField
-                                        className={classes.formControl}
-                                        value={formation.isConcluded}
-                                        select
-                                        label="Concluido"
-                                        onChange={(e) => this.handleFormationDataChanges(e, idx)}
-                                        name="isConcluded"
-                                        id="isConcluded"
-                                        fullWidth
-                                    >
-                                        <MenuItem value={true}>Sim</MenuItem>
-                                        <MenuItem value={false}>Não</MenuItem>
-                                    </TextField>
-                                </Grid>
-                                <Grid item md={6}>
-                                    <TextField
-                                        className={classes.formControl}
-                                        id="startDate"
-                                        name="startDate"
-                                        label="Data de inicio"
-                                        type="date"
-                                        InputLabelProps={{
-                                            shrink: true,
-                                        }}
-                                        value={moment(formation.startDate.split(" ")[0]).format("YYYY-MM-DD")}
-                                        onChange={(e) => this.handleFormationDataChanges(e, idx)}
-                                        fullWidth
-                                    />
-                                </Grid>
-                                <Grid item md={6}>
-                                    <TextField
-                                        className={classes.formControl}
-                                        id="endDate"
-                                        name="endDate"
-                                        label="Data do termino"
-                                        type="date"
-                                        InputLabelProps={{
-                                            shrink: true,
-                                        }}
-                                        value={moment(formation.endDate.split(" ")[0]).format("YYYY-MM-DD")}
-                                        onChange={(e) => this.handleFormationDataChanges(e, idx)}
-                                        fullWidth
-                                    />
-                                </Grid>
+        return _.map(formations, (formation, idx) => {
+            return (
+                <div key={idx} style={{ padding: 20 }}>
+                    <Paper className={classes.paper} style={{ padding: 20 }}>
+                        <Grid container spacing={8}>
+                            <Grid item md={10}>
+                                <Typography variant="title">Nova Formação</Typography>
                             </Grid>
-                        </Paper>
-                    </div>
-                )
-            })
-        );
+                            <Grid item md={2}>
+                                <Button
+                                    variant="contained"
+                                    style={theme.palette.danger}
+                                    className={classes.button}
+                                    onClick={() => this.handleRemoveFormation(idx)}
+                                >
+                                    <DeleteIcon className={classes.leftIcon} />
+                                    Remover
+                </Button>
+                            </Grid>
+                            <Grid item md={6}>
+                                <TextField
+                                    className={classes.formControl}
+                                    value={formation.institution}
+                                    name="institution"
+                                    id="institution"
+                                    label="Instituição"
+                                    onChange={e => this.handleFormationDataChanges(e, idx)}
+                                    fullWidth
+                                />
+                            </Grid>
+                            <Grid item md={4}>
+                                <TextField
+                                    className={classes.formControl}
+                                    value={formation.course}
+                                    name="course"
+                                    id="course"
+                                    label="Curso"
+                                    onChange={e => this.handleFormationDataChanges(e, idx)}
+                                    fullWidth
+                                />
+                            </Grid>
+                            <Grid item md={2}>
+                                <TextField
+                                    className={classes.formControl}
+                                    value={formation.isConcluded}
+                                    select
+                                    label="Concluido"
+                                    onChange={e => this.handleFormationDataChanges(e, idx)}
+                                    name="isConcluded"
+                                    id="isConcluded"
+                                    fullWidth
+                                >
+                                    <MenuItem value={true}>Sim</MenuItem>
+                                    <MenuItem value={false}>Não</MenuItem>
+                                </TextField>
+                            </Grid>
+                            <Grid item md={6}>
+                                <TextField
+                                    className={classes.formControl}
+                                    id="startDate"
+                                    name="startDate"
+                                    label="Data de inicio"
+                                    type="date"
+                                    InputLabelProps={{
+                                        shrink: true
+                                    }}
+                                    value={moment(formation.startDate.split(" ")[0]).format(
+                                        "YYYY-MM-DD"
+                                    )}
+                                    onChange={e => this.handleFormationDataChanges(e, idx)}
+                                    fullWidth
+                                />
+                            </Grid>
+                            <Grid item md={6}>
+                                <TextField
+                                    className={classes.formControl}
+                                    id="endDate"
+                                    name="endDate"
+                                    label="Data do termino"
+                                    type="date"
+                                    InputLabelProps={{
+                                        shrink: true
+                                    }}
+                                    value={moment(formation.endDate.split(" ")[0]).format(
+                                        "YYYY-MM-DD"
+                                    )}
+                                    onChange={e => this.handleFormationDataChanges(e, idx)}
+                                    fullWidth
+                                />
+                            </Grid>
+                        </Grid>
+                    </Paper>
+                </div>
+            );
+        });
     };
 
     renderProfessionalExperiences = () => {
         const { professionalExperiences } = this.state.candidate;
         const { classes } = this.props;
-        return (
-            _.map(professionalExperiences, (professionalExperience, idx) => {
-                return (
-                    <div key={idx} style={{ padding: 20 }}>
-                        <Paper className={classes.paper} style={{ padding: 20 }}>
-                            <Grid container spacing={8}>
-                                <Grid item md={10}>
-                                    <Typography variant="title">
-                                        Nova Experiência Profissional
-                                    </Typography>
-                                </Grid>
-                                <Grid item md={2}>
-                                    <Button variant="contained" style={theme.palette.danger} className={classes.button} onClick={() => this.handleRemoveProfessionalExperience(idx)}>
-                                        <DeleteIcon className={classes.leftIcon} />
-                                        Remover
-                                    </Button>
-                                </Grid>
-                                <Grid item md={6}>
-                                    <TextField
-                                        className={classes.formControl}
-                                        value={professionalExperience.companyName}
-                                        label="Nome da empresa"
-                                        name="companyName"
-                                        id="companyName"
-                                        onChange={(e) => this.handleProfessionalExperiencesDataChanges(e, idx)}
-                                        fullWidth
-                                    />
-                                </Grid>
-                                <Grid item md={6}>
-                                    <TextField
-                                        className={classes.formControl}
-                                        value={professionalExperience.role}
-                                        label="Cargo"
-                                        name="role"
-                                        id="role"
-                                        onChange={(e) => this.handleProfessionalExperiencesDataChanges(e, idx)}
-                                        fullWidth
-                                    />
-                                </Grid>
-                                <Grid item md={6}>
-                                    <TextField
-                                        className={classes.formControl}
-                                        id="startDate"
-                                        name="startDate"
-                                        label="Data de entrada"
-                                        type="date"
-                                        InputLabelProps={{
-                                            shrink: true,
-                                        }}
-                                        value={moment(professionalExperience.startDate.split(" ")[0]).format("YYYY-MM-DD")}
-                                        onChange={(e) => this.handleProfessionalExperiencesDataChanges(e, idx)}
-                                        fullWidth
-                                    />
-                                </Grid>
-                                <Grid item md={6}>
-                                    <TextField
-                                        className={classes.formControl}
-                                        id="endDate"
-                                        name="endDate"
-                                        label="Data de saida"
-                                        type="date"
-                                        InputLabelProps={{
-                                            shrink: true,
-                                        }}
-                                        value={moment(professionalExperience.endDate.split(" ")[0]).format("YYYY-MM-DD")}
-                                        onChange={(e) => this.handleProfessionalExperiencesDataChanges(e, idx)}
-                                        fullWidth
-                                    />
-                                </Grid>
+        return _.map(professionalExperiences, (professionalExperience, idx) => {
+            return (
+                <div key={idx} style={{ padding: 20 }}>
+                    <Paper className={classes.paper} style={{ padding: 20 }}>
+                        <Grid container spacing={8}>
+                            <Grid item md={10}>
+                                <Typography variant="title">
+                                    Nova Experiência Profissional
+                </Typography>
                             </Grid>
-                        </Paper>
-                    </div>
-                )
-            })
-        );
+                            <Grid item md={2}>
+                                <Button
+                                    variant="contained"
+                                    style={theme.palette.danger}
+                                    className={classes.button}
+                                    onClick={() => this.handleRemoveProfessionalExperience(idx)}
+                                >
+                                    <DeleteIcon className={classes.leftIcon} />
+                                    Remover
+                </Button>
+                            </Grid>
+                            <Grid item md={6}>
+                                <TextField
+                                    className={classes.formControl}
+                                    value={professionalExperience.companyName}
+                                    label="Nome da empresa"
+                                    name="companyName"
+                                    id="companyName"
+                                    onChange={e =>
+                                        this.handleProfessionalExperiencesDataChanges(e, idx)
+                                    }
+                                    fullWidth
+                                />
+                            </Grid>
+                            <Grid item md={6}>
+                                <TextField
+                                    className={classes.formControl}
+                                    value={professionalExperience.role}
+                                    label="Cargo"
+                                    name="role"
+                                    id="role"
+                                    onChange={e =>
+                                        this.handleProfessionalExperiencesDataChanges(e, idx)
+                                    }
+                                    fullWidth
+                                />
+                            </Grid>
+                            <Grid item md={6}>
+                                <TextField
+                                    className={classes.formControl}
+                                    id="startDate"
+                                    name="startDate"
+                                    label="Data de entrada"
+                                    type="date"
+                                    InputLabelProps={{
+                                        shrink: true
+                                    }}
+                                    value={moment(
+                                        professionalExperience.startDate.split(" ")[0]
+                                    ).format("YYYY-MM-DD")}
+                                    onChange={e =>
+                                        this.handleProfessionalExperiencesDataChanges(e, idx)
+                                    }
+                                    fullWidth
+                                />
+                            </Grid>
+                            <Grid item md={6}>
+                                <TextField
+                                    className={classes.formControl}
+                                    id="endDate"
+                                    name="endDate"
+                                    label="Data de saida"
+                                    type="date"
+                                    InputLabelProps={{
+                                        shrink: true
+                                    }}
+                                    value={moment(
+                                        professionalExperience.endDate.split(" ")[0]
+                                    ).format("YYYY-MM-DD")}
+                                    onChange={e =>
+                                        this.handleProfessionalExperiencesDataChanges(e, idx)
+                                    }
+                                    fullWidth
+                                />
+                            </Grid>
+                        </Grid>
+                    </Paper>
+                </div>
+            );
+        });
     };
 
     renderSnackbar = () => {
@@ -555,26 +602,31 @@ class PreviewCandidate extends React.Component {
         return (
             <Snackbar
                 anchorOrigin={{
-                    vertical: 'bottom',
-                    horizontal: 'right',
+                    vertical: "bottom",
+                    horizontal: "right"
                 }}
                 open={showSnackbar}
                 autoHideDuration={3000}
                 onClose={(e, r) => this.hideSnackbar(e, r)}
                 ContentProps={{
-                    'aria-describedby': 'message-id',
+                    "aria-describedby": "message-id"
                 }}
                 message={<span id="message-id">{snackbarMessage}</span>}
                 action={[
-                    <Button key="undo" color="secondary" size="small" onClick={(e, r) => this.hideSnackbar(e, r)}>
+                    <Button
+                        key="undo"
+                        color="secondary"
+                        size="small"
+                        onClick={(e, r) => this.hideSnackbar(e, r)}
+                    >
                         OK
-                </Button>
+          </Button>
                 ]}
             />
-        )
+        );
     };
 
-    showSnackbar = (snackbarMessage) => {
+    showSnackbar = snackbarMessage => {
         this.setState({
             showSnackbar: true,
             snackbarMessage
@@ -582,7 +634,7 @@ class PreviewCandidate extends React.Component {
     };
 
     hideSnackbar = (event, reason) => {
-        if (reason === 'clickaway') {
+        if (reason === "clickaway") {
             return;
         }
 
@@ -605,14 +657,22 @@ class PreviewCandidate extends React.Component {
                 >
                     <AppBar className={classes.appBar}>
                         <Toolbar>
-                            <IconButton color="inherit" onClick={() => this.handleClose()} aria-label="Close">
+                            <IconButton
+                                color="inherit"
+                                onClick={() => this.handleClose()}
+                                aria-label="Close"
+                            >
                                 <CloseIcon />
                             </IconButton>
-                            <Typography variant="title" color="inherit" className={classes.flex}>
+                            <Typography
+                                variant="title"
+                                color="inherit"
+                                className={classes.flex}
+                            >
                                 {candidate.name}
                             </Typography>
                             <Button color="inherit" onClick={() => this.updateCandidate()}>
-                                Atualizar Candidato
+                                {this.state.updatingCandidate ? "Atualizando..." : "Atualizar Candidato"}
                             </Button>
                         </Toolbar>
                     </AppBar>
@@ -628,10 +688,11 @@ class PreviewCandidate extends React.Component {
                                     color="primary"
                                     className={classes.button}
                                     onClick={() => this.handleAddProfessionalExperience()}
-                                    disabled={savingNewCandidate}>
+                                    disabled={savingNewCandidate}
+                                >
                                     <AddIcon className={classes.leftIcon} />
                                     Adicionar experiência
-                                    </Button>
+                </Button>
                             </div>
                         </Grid>
                         <Grid item md={12}>
@@ -644,10 +705,11 @@ class PreviewCandidate extends React.Component {
                                     color="primary"
                                     className={classes.button}
                                     onClick={() => this.handleAddFormation()}
-                                    disabled={savingNewCandidate}>
+                                    disabled={savingNewCandidate}
+                                >
                                     <AddIcon className={classes.leftIcon} />
                                     Adicionar formação
-                            </Button>
+                </Button>
                             </div>
                         </Grid>
                         <Grid item md={12}>
@@ -657,11 +719,11 @@ class PreviewCandidate extends React.Component {
                 </Dialog>
             </div>
         );
-    };
+    }
 }
 
 PreviewCandidate.propTypes = {
-    classes: PropTypes.object.isRequired,
+    classes: PropTypes.object.isRequired
 };
 
 export default withStyles(styles)(PreviewCandidate);

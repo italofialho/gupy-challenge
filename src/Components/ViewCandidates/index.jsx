@@ -30,6 +30,7 @@ import PreviewCandidate from '../PreviewCandidate';
 import _ from 'underscore';
 import moment from 'moment';
 import firebase from 'firebase';
+import axios from 'axios';
 
 
 function getSorting(order, orderBy) {
@@ -191,45 +192,28 @@ class ViewCandidates extends React.Component {
 
   populateFirebaseWithCandidatesList() {
     const candidates = require("../../Assets/JSON/candidates.json");
-    let candidatesList = _.map(candidates, candidate => {
-      candidate.score = parseFloat((Math.random() * 10)).toFixed(2);
-
-      firebase
-        .database()
-        .ref(`Candidates/${candidate._id}`)
-        .update(candidate)
-        .then(() => {
-          console.log("Candito adicionado ao firebase!", candidate._id);
-        })
-        .catch((error) => {
-          console.log("Erro ao adicionar candidato ao firebase!", candidate._id, error);
-        });
-
-      return candidate;
-    });
-    this.setState({ candidatesList });
+    this.setState({ candidatesList: candidates });
   };
 
   loadCandidatesList() {
-    firebase
-      .database()
-      .ref("Candidates/")
-      .once("value")
-      .then((candidatesSnapshot) => {
-        if (candidatesSnapshot.val()) {
-          this.setState({ candidatesList: _.map(candidatesSnapshot.val()), loadingCandidates: false });
-          this.showSnackbar("Candidatos carregados com sucesso!");
-          console.log("Candidatos carregados com sucesso!", candidatesSnapshot.numChildren());
-        }
+
+    const apiEndPoint = ' https://us-central1-gupy-challenge.cloudfunctions.net/listCandidates';
+
+    axios
+      .get(apiEndPoint)
+      .then((result) => {
+        const data = result.data;
+        this.setState({ candidatesList: _.map(data), loadingCandidates: false });
+        this.showSnackbar("Candidatos carregados com sucesso!");
       })
       .catch((error) => {
-        this.setState({ loadingCandidates: false });
-        console.log("Erro ao carregar lista de candidato ao firebase!", error);
+        console.log("loadCandidatesList error:", error);
       });
   };
 
 
-  handleRequestSort = (property) => {
+  handleRequestSort = (event, property) => {
+    console.log("handleRequestSort property:", property);
     const orderBy = property;
     let order = 'desc';
 
@@ -260,9 +244,9 @@ class ViewCandidates extends React.Component {
       <PreviewCandidate
         open={this.state.previewOpen}
         candidate={this.state.selectedCandidate}
-        togglePreview={(state) => this.togglePreview(state)} 
-        refreshCandidatesList={() => this.refreshCandidatesList()} 
-        showSnackbar={(snackbarMessage) => this.showSnackbar(snackbarMessage)}/>
+        togglePreview={(state) => this.togglePreview(state)}
+        refreshCandidatesList={() => this.refreshCandidatesList()}
+        showSnackbar={(snackbarMessage) => this.showSnackbar(snackbarMessage)} />
     )
   };
 
@@ -284,7 +268,7 @@ class ViewCandidates extends React.Component {
             <ViewCandidatesHead
               order={order}
               orderBy={orderBy}
-              onRequestSort={this.handleRequestSort}
+              onRequestSort={(event, column) => this.handleRequestSort(event, column)}
               rowCount={candidatesList.length}
             />
             {candidatesList.length > 0 && <TableBody>
@@ -305,7 +289,7 @@ class ViewCandidates extends React.Component {
                       <TableCell>{n.gender === "male" ? "Homem" : n.gender === "female" ? "Mulher" : "--"}</TableCell>
                       <TableCell>{n.phone}</TableCell>
                       <TableCell>{n.address}</TableCell>
-                      <TableCell><RemoveRedEyeIcon className={classes.leftIcon} onClick={() => this.setState({previewOpen: true, selectedCandidate: n})} /></TableCell>
+                      <TableCell><RemoveRedEyeIcon className={classes.leftIcon} onClick={() => this.setState({ previewOpen: true, selectedCandidate: n })} /></TableCell>
                     </TableRow>
                   );
                 })
